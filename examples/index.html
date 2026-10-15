@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>bravais demo</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+        color: #282828;
+      }
+      body {
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid #e3e3e3;
+      }
+      label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      #viewer {
+        min-height: 0;
+      }
+      #status {
+        color: #6f6c66;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>bravais</strong>
+      <label
+        >Structure
+        <select id="fixture"></select
+      ></label>
+      <label>Open a CIF <input id="file" type="file" accept=".cif" /></label>
+      <button id="reset" type="button">Reset view</button>
+      <span id="status"></span>
+    </header>
+    <div id="viewer"></div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

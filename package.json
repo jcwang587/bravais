@@ -1,0 +1,65 @@
+{
+  "name": "bravais",
+  "version": "0.1.0",
+  "description": "Crystal structure viewer: reads CIFs, applies their symmetry, repeats boundary sites, finds bonds with VESTA's cutoffs and renders with three.js.",
+  "license": "MIT",
+  "author": "Jiacheng Wang",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcwang587/bravais.git"
+  },
+  "homepage": "https://github.com/jcwang587/bravais#readme",
+  "bugs": {
+    "url": "https://github.com/jcwang587/bravais/issues"
+  },
+  "keywords": [
+    "crystal",
+    "crystallography",
+    "cif",
+    "crystal-structure",
+    "viewer",
+    "three.js",
+    "webgl",
+    "space-group",
+    "materials-science"
+  ],
+  "type": "module",
+  "main": "./dist/bravais.js",
+  "types": "./dist/bravais.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/bravais.d.ts",
+      "import": "./dist/bravais.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/*.map",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "demo": "vite --open /examples/",
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/entry-types.mjs",
+    "dev": "vite build --watch",
+    "test": "vitest run",
+    "check": "tsc -p tsconfig.json && prettier --check .",
+    "format": "prettier --write .",
+    "prepublishOnly": "npm run check && npm test && npm run build"
+  },
+  "peerDependencies": {
+    "three": ">=0.186.0"
+  },
+  "devDependencies": {
+    "@spglib/moyo-wasm": "^0.21.0",
+    "@types/node": "^26.6.5",
+    "@types/three": "^0.186.0",
+    "prettier": "3.9.10",
+    "three": "^0.186.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

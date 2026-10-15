@@ -1,0 +1,42 @@
+name: Release
+
+# Pushing a tag such as v0.1.0 publishes that version to npm with provenance
+# and opens a GitHub release with generated notes. The tag must match the
+# version in package.json, and the repository needs an NPM_TOKEN secret
+# (an npm granular access token with publish rights to the package).
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Tag matches package.json
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          test "$version" = "$GITHUB_REF_NAME" || {
+            echo "tag $GITHUB_REF_NAME does not match package.json $version"
+            exit 1
+          }
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: gh release create "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

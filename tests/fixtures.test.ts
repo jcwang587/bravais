@@ -14,13 +14,13 @@ import { fixture, withoutOperatorLoop } from "./helpers";
  * The ten Crystallography Open Database entries under tests/fixtures, from
  * the simplest to the hardest: cubic rocksalt, tetragonal rutile, the spinel
  * in origin choice 2, the tilted perovskite in the Pbnm setting, calcite on
- * hexagonal axes, gypsum with its water hydrogens in the I2/c setting, a
- * centred triclinic feldspar, a layered oxide with three cations sharing a
- * site, an organic molecular crystal, and a dehydrated zeolite with Si/Al
- * disorder and partly occupied sodium sites, and an ilmenite-type oxide on
- * rhombohedral axes whose symbol names no setting and which lists every
- * atom of its cell with no operator loop. `atoms` counts the sites of the
- * whole cell before boundary images; `loop` is false when the file has no
+ * hexagonal axes, an ilmenite-type oxide on rhombohedral axes whose symbol
+ * names no setting and which lists every atom of its cell with no operator
+ * loop, gypsum with its water hydrogens in the I2/c setting, a centred
+ * triclinic feldspar, a layered oxide with three cations sharing a site, an
+ * organic molecular crystal, and a dehydrated zeolite with Si/Al disorder
+ * and partly occupied sodium sites. `atoms` counts the sites of the whole
+ * cell before boundary images; `loop` is false when the file has no
  * operator loop and `operations` counts what moyo supplies.
  */
 const FIXTURES = [
@@ -70,6 +70,16 @@ const FIXTURES = [
     elements: ["Ca", "C", "O"],
   },
   {
+    file: "CoTiO3-5910080.cif",
+    symbol: "R -3",
+    number: 148,
+    loop: false,
+    operations: 6,
+    sites: 10,
+    atoms: 10,
+    elements: ["Co", "Ti", "O"],
+  },
+  {
     file: "CaSO4-2H2O-2300259.cif",
     symbol: "I 1 2/c 1",
     number: 15,
@@ -113,16 +123,6 @@ const FIXTURES = [
     sites: 12,
     atoms: 1008,
     elements: ["Si", "Al", "O", "Na"],
-  },
-  {
-    file: "CoTiO3-5910080.cif",
-    symbol: "R -3",
-    number: 148,
-    loop: false,
-    operations: 6,
-    sites: 10,
-    atoms: 10,
-    elements: ["Co", "Ti", "O"],
   },
 ];
 

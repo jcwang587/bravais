@@ -9,15 +9,16 @@ import {
   typesetSymbol,
 } from "../src/index.ts";
 
+// COD entries under tests/fixtures, named <formula>-<COD number>.cif.
 const FIXTURES = [
   "CoO-9008618.cif",
   "TiO2-9015662.cif",
   "Co3O4-9005887.cif",
   "CaTiO3-1567488.cif",
   "CaCO3-1547350.cif",
+  "CoTiO3-5910080.cif",
   "CaSO4-2H2O-2300259.cif",
   "NaAlSi3O8-9001630.cif",
-  "CoTiO3-5910080.cif",
   "LiNiMnCoO2-4002443.cif",
   "aspirin-1515581.cif",
   "faujasite-1507214.cif",
@@ -29,10 +30,10 @@ const fixtureSelect = document.getElementById("fixture");
 const fileInput = document.getElementById("file");
 let structure = null;
 
-for (const name of FIXTURES) {
+for (const file of FIXTURES) {
   const option = document.createElement("option");
-  option.value = name;
-  option.textContent = name;
+  option.value = file;
+  option.textContent = file.replace(/-(\d+)\.cif$/, " (COD $1)");
   fixtureSelect.append(option);
 }
 

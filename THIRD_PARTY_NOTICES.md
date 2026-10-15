@@ -160,9 +160,9 @@ Ten entries of the [Crystallography Open Database](https://www.crystallography.n
 - `Co3O4-9005887.cif`, Co3O4 spinel: COD 9005887; Liu, X.; Prewitt, C. T., Physics and Chemistry of Minerals 17, 168–172 (1990).
 - `CaTiO3-1567488.cif`, CaTiO3 perovskite: COD 1567488; Ali, R.; Yashima, M., Journal of Solid State Chemistry 178, 2867–2872 (2005).
 - `CaCO3-1547350.cif`, calcite: COD 1547350; Nobuo Ishizawa; Hayato Setoguchi; Kazumichi Yanagisawa, Scientific Reports 3, 2832 (2013).
+- `CoTiO3-5910080.cif`, CoTiO3 on rhombohedral axes, listing every atom of its cell with no operator loop: COD 5910080; Wyckoff, R. W. G., The second edition supplement of The Structure of Crystals, 54–61 (1935).
 - `CaSO4-2H2O-2300259.cif`, gypsum, from neutron powder diffraction: COD 2300259; Henry, Paul F.; Weller, Mark T.; Wilson, Chick C., Journal of Applied Crystallography 42, 1176–1188 (2009).
 - `NaAlSi3O8-9001630.cif`, low albite: COD 9001630; Downs, R. T.; Hazen, R. M.; Finger, L. W., American Mineralogist 79, 1042–1052 (1994).
 - `LiNiMnCoO2-4002443.cif`, LiCo1/3Ni1/3Mn1/3O2 layered oxide: COD 4002443; Yin, S.-C.; Rho, Y.-H.; Swainson, I.; Nazar, L.F., Chemistry of Materials 18, 1901–1910 (2006).
 - `aspirin-1515581.cif`, aspirin form II: COD 1515581; Varughese, Sunil; Kiran, M. S. R. N.; Solanko, Katarzyna A.; Bond, Andrew D.; Ramamurty, U.; Desiraju, Gautam R., Chemical Science 2, 2236 (2011).
 - `faujasite-1507214.cif`, dehydrated sodium zeolite Y (faujasite): COD 1507214; Seo, S.M.; Kim, G.H.; Lee, H.S.; Ko, S.-O.; Lee, O.S.; Kim, Y.H.; Kim, S.H.; Heo, N.H.; Lim, W.T., Analytical Sciences: X-ray Structure Analysis Online 22, x209–x210 (2006).
-- `CoTiO3-5910080.cif`, CoTiO3 on rhombohedral axes, listing every atom of its cell with no operator loop: COD 5910080; Wyckoff, R. W. G., The second edition supplement of The Structure of Crystals, 54–61 (1935).

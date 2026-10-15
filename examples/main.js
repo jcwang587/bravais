@@ -17,6 +17,7 @@ const FIXTURES = [
   "CaCO3-1547350.cif",
   "CaSO4-2H2O-2300259.cif",
   "NaAlSi3O8-9001630.cif",
+  "CoTiO3-5910080.cif",
   "LiNiMnCoO2-4002443.cif",
   "aspirin-1515581.cif",
   "faujasite-1507214.cif",

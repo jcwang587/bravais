@@ -1,7 +1,7 @@
 import { parseCif } from "./cif/parser";
 import { isStructureBlock, parseCifStructure } from "./cif/structure";
-import { operationsForSpaceGroup } from "./symmetry/moyo";
-import { IDENTITY_OPERATION, type Structure } from "./structure/types";
+import { resolveOperations } from "./symmetry/resolve";
+import type { Structure } from "./structure/types";
 
 export {
   parseCif,
@@ -63,8 +63,9 @@ export type {
 
 /**
  * Read the first structure in a CIF. Symmetry comes from the file's operator
- * loop, or from its space-group symbol or number through moyo when the loop
- * is missing; a file naming neither is taken as listing every atom (P1).
+ * loop, checked to fit its atoms, or from moyo by the file's space-group
+ * symbol or number, in the setting its atoms or its cell select; a file
+ * naming neither is taken as listing every atom (P1).
  */
 export async function readCif(text: string): Promise<Structure> {
   const document = parseCif(text);
@@ -73,19 +74,10 @@ export async function readCif(text: string): Promise<Structure> {
     throw new Error("The CIF has no data block.");
   }
   const parsed = parseCifStructure(block);
-  const hasSpaceGroup =
-    parsed.spaceGroup.hallSymbol !== null ||
-    parsed.spaceGroup.symbol !== null ||
-    parsed.spaceGroup.number !== null;
-  const operations =
-    parsed.operations ??
-    (hasSpaceGroup
-      ? await operationsForSpaceGroup(parsed.spaceGroup)
-      : [IDENTITY_OPERATION]);
   return {
     lattice: parsed.lattice,
     sites: parsed.sites,
-    operations,
+    operations: await resolveOperations(parsed),
     spaceGroup: parsed.spaceGroup,
   };
 }

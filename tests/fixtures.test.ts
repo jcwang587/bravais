@@ -8,7 +8,7 @@ import {
   parseCifStructure,
   readCif,
 } from "../src/index";
-import { fixture } from "./helpers";
+import { fixture, withoutOperatorLoop } from "./helpers";
 
 /**
  * The ten Crystallography Open Database entries under tests/fixtures, from
@@ -17,8 +17,11 @@ import { fixture } from "./helpers";
  * hexagonal axes, gypsum with its water hydrogens in the I2/c setting, a
  * centred triclinic feldspar, a layered oxide with three cations sharing a
  * site, an organic molecular crystal, and a dehydrated zeolite with Si/Al
- * disorder and partly occupied sodium sites. `atoms` counts the sites of
- * the whole cell before boundary images.
+ * disorder and partly occupied sodium sites, and an ilmenite-type oxide on
+ * rhombohedral axes whose symbol names no setting and which lists every
+ * atom of its cell with no operator loop. `atoms` counts the sites of the
+ * whole cell before boundary images; `loop` is false when the file has no
+ * operator loop and `operations` counts what moyo supplies.
  */
 const FIXTURES = [
   {
@@ -111,18 +114,17 @@ const FIXTURES = [
     atoms: 1008,
     elements: ["Si", "Al", "O", "Na"],
   },
+  {
+    file: "CoTiO3-5910080.cif",
+    symbol: "R -3",
+    number: 148,
+    loop: false,
+    operations: 6,
+    sites: 10,
+    atoms: 10,
+    elements: ["Co", "Ti", "O"],
+  },
 ];
-
-/** The CIF text without its symmetry-operator loop. */
-function withoutOperatorLoop(text: string): string {
-  return text.replace(
-    /loop_\s*\n((?:\s*_\S+\s*\n)+)((?:(?!\s*loop_|\s*_)[^\n]*\n)+)/g,
-    (block, tags: string) =>
-      /_space_group_symop_operation_xyz|_symmetry_equiv_pos_as_xyz/.test(tags)
-        ? ""
-        : block,
-  );
-}
 
 /** A site as "elements@x,y,z" with the position folded into the cell. */
 function positionKey(site: {
@@ -139,15 +141,30 @@ function positionKey(site: {
 describe("COD fixtures", () => {
   it.each(FIXTURES)(
     "$file: reads, expands and builds a scene",
-    async ({ file, symbol, number, operations, sites, atoms, elements }) => {
+    async ({
+      file,
+      symbol,
+      number,
+      loop = true,
+      operations,
+      sites,
+      atoms,
+      elements,
+    }) => {
       const text = fixture(file);
       const parsed = parseCifStructure(parseCif(text).blocks[0]!);
       expect(parsed.spaceGroup.symbol).toBe(symbol);
       expect(parsed.spaceGroup.number).toBe(number);
-      expect(parsed.operations).toHaveLength(operations);
+      if (loop) {
+        expect(parsed.operations).toHaveLength(operations);
+      } else {
+        expect(parsed.operations).toBeNull();
+      }
       expect(parsed.sites).toHaveLength(sites);
 
-      const expanded = expandStructure(await readCif(text));
+      const structure = await readCif(text);
+      expect(structure.operations).toHaveLength(operations);
+      const expanded = expandStructure(structure);
       expect(expanded.sites).toHaveLength(atoms);
 
       const scene = buildScene(expanded);
@@ -157,7 +174,9 @@ describe("COD fixtures", () => {
     },
   );
 
-  it.each(FIXTURES.filter((entry) => entry.symbol !== "C -1"))(
+  it.each(
+    FIXTURES.filter((entry) => entry.loop !== false && entry.symbol !== "C -1"),
+  )(
     "$file: moyo reproduces the file's operators from its symbol",
     async ({ file }) => {
       const text = fixture(file);

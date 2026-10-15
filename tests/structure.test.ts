@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  CifStructureError,
   buildScene,
   expandStructure,
   operationsForSpaceGroup,
@@ -10,7 +11,7 @@ import { applyOperation } from "../src/cif/symmetry-operators";
 import { periodicAtoms } from "../src/structure/images";
 import { latticeFromParameters } from "../src/structure/lattice";
 import type { Site } from "../src/structure/types";
-import { fixture } from "./helpers";
+import { fixture, withoutOperatorLoop } from "./helpers";
 
 function composition(sites: Site[]): Record<string, number> {
   const counts: Record<string, number> = {};
@@ -131,6 +132,78 @@ describe("expansion", () => {
     // 71 sodium per cell in the formula; the refined occupancies sum a little short.
     expect(counts.Na).toBeGreaterThan(70);
     expect(counts.Na).toBeLessThan(71);
+  });
+});
+
+describe("symmetry fit", () => {
+  const cell = (a: number, alpha: number) => [
+    `_cell_length_a ${a}`,
+    `_cell_length_b ${a}`,
+    `_cell_length_c ${a}`,
+    `_cell_angle_alpha ${alpha}`,
+    `_cell_angle_beta ${alpha}`,
+    `_cell_angle_gamma ${alpha}`,
+  ];
+  const sites = (...rows: string[]) => [
+    "loop_",
+    "_atom_site_label",
+    "_atom_site_fract_x",
+    "_atom_site_fract_y",
+    "_atom_site_fract_z",
+    ...rows,
+  ];
+
+  it("reads the rhombohedral CoTiO3 entry on the axes its atoms fit", async () => {
+    const structure = await readCif(fixture("CoTiO3-5910080.cif"));
+    expect(structure.spaceGroup.symbol).toBe("R -3");
+    expect(structure.operations).toHaveLength(6);
+    expect(expandStructure(structure).sites).toHaveLength(10);
+  });
+
+  it("chooses the axes from the cell when the file lists an asymmetric unit", async () => {
+    const rhombohedral = [
+      "data_r",
+      ...cell(5.49, 59.42),
+      "_symmetry_space_group_name_H-M 'R -3'",
+      ...sites("Ti1 0.142 0.142 0.142"),
+    ].join("\n");
+    const onRhombohedralAxes = await readCif(rhombohedral);
+    expect(onRhombohedralAxes.operations).toHaveLength(6);
+    expect(expandStructure(onRhombohedralAxes).sites).toHaveLength(2);
+
+    const text = withoutOperatorLoop(fixture("CaCO3-1547350.cif"));
+    const hexagonalNoSuffix = text.replace("'R -3 c :H'", "'R -3 c'");
+    expect(hexagonalNoSuffix).not.toBe(text);
+    const onHexagonalAxes = await readCif(hexagonalNoSuffix);
+    expect(onHexagonalAxes.operations).toHaveLength(36);
+    expect(expandStructure(onHexagonalAxes).sites).toHaveLength(30);
+  });
+
+  it("accepts a listing that is already expanded and closed under its operations", async () => {
+    const text = [
+      "data_p",
+      ...cell(4, 90),
+      "loop_",
+      "_symmetry_equiv_pos_as_xyz",
+      "'x, y, z'",
+      "'-x, -y, -z'",
+      ...sites("Co1 0.1 0.2 0.3", "Co2 0.9 0.8 0.7"),
+    ].join("\n");
+    expect(expandStructure(await readCif(text)).sites).toHaveLength(2);
+  });
+
+  it("refuses a listing that is already expanded but not closed under its operations", async () => {
+    const text = [
+      "data_p",
+      ...cell(4, 90),
+      "loop_",
+      "_symmetry_equiv_pos_as_xyz",
+      "'x, y, z'",
+      "'-x, -y, -z'",
+      "'x+1/2, y, z'",
+      ...sites("Co1 0.1 0.2 0.3", "Co2 0.9 0.8 0.7"),
+    ].join("\n");
+    await expect(readCif(text)).rejects.toThrow(CifStructureError);
   });
 });
 

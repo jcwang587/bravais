@@ -165,3 +165,4 @@ Ten entries of the [Crystallography Open Database](https://www.crystallography.n
 - `LiNiMnCoO2-4002443.cif`, LiCo1/3Ni1/3Mn1/3O2 layered oxide: COD 4002443; Yin, S.-C.; Rho, Y.-H.; Swainson, I.; Nazar, L.F., Chemistry of Materials 18, 1901–1910 (2006).
 - `aspirin-1515581.cif`, aspirin form II: COD 1515581; Varughese, Sunil; Kiran, M. S. R. N.; Solanko, Katarzyna A.; Bond, Andrew D.; Ramamurty, U.; Desiraju, Gautam R., Chemical Science 2, 2236 (2011).
 - `faujasite-1507214.cif`, dehydrated sodium zeolite Y (faujasite): COD 1507214; Seo, S.M.; Kim, G.H.; Lee, H.S.; Ko, S.-O.; Lee, O.S.; Kim, Y.H.; Kim, S.H.; Heo, N.H.; Lim, W.T., Analytical Sciences: X-ray Structure Analysis Online 22, x209–x210 (2006).
+- `CoTiO3-5910080.cif`, CoTiO3 on rhombohedral axes, listing every atom of its cell with no operator loop: COD 5910080; Wyckoff, R. W. G., The second edition supplement of The Structure of Crystals, 54–61 (1935).

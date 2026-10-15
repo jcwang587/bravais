@@ -145,29 +145,60 @@ function describe(info: SpaceGroupInfo): string {
     .join(" / ");
 }
 
+export interface OperationSetting {
+  /** moyo's name for the setting, such as "H", "R" or "b1"; "" when the group has one. */
+  setting: string;
+  hallNumber: number;
+  /** Operations of the conventional cell in that setting. */
+  operations: SymmetryOperation[];
+}
+
 /**
- * Symmetry operations of the conventional cell for the space group a CIF
- * names, in the setting its Hall or Hermann-Mauguin symbol selects. A bare
- * number resolves to spglib's standard setting.
+ * Every setting the space group a CIF names admits, spglib's standard one
+ * first: one for most symbols, several for a short symbol such as `P 21/c`
+ * or a rhombohedral symbol without `:H` or `:R`. A bare number gives the
+ * standard setting alone.
  */
-export async function operationsForSpaceGroup(
+export async function operationSettings(
   info: SpaceGroupInfo,
-): Promise<SymmetryOperation[]> {
+): Promise<OperationSetting[]> {
   await ensureMoyo();
-  let number = info.number;
-  let setting: MoyoSetting = { type: "Spglib" };
   if (info.hallSymbol || info.symbol) {
-    const entry = entriesForSymbol(info)[0];
-    if (!entry) {
+    const entries = entriesForSymbol(info);
+    if (entries.length === 0) {
       throw new SpaceGroupLookupError(
         `Space group ${describe(info)} is not in the symmetry table.`,
       );
     }
-    number = entry.number;
-    setting = { type: "HallNumber", value: entry.hall_number };
+    return entries.map((entry) => ({
+      setting: entry.setting,
+      hallNumber: entry.hall_number,
+      operations: operations_from_number(
+        entry.number,
+        { type: "HallNumber", value: entry.hall_number },
+        false,
+      ).map(fromMoyoOperation),
+    }));
   }
-  if (number === null) {
+  if (info.number === null) {
     throw new SpaceGroupLookupError("The CIF names no space group.");
   }
-  return operations_from_number(number, setting, false).map(fromMoyoOperation);
+  const setting: MoyoSetting = { type: "Spglib" };
+  return [
+    {
+      setting: "",
+      hallNumber: space_group_type(info.number).hall_number,
+      operations: operations_from_number(info.number, setting, false).map(
+        fromMoyoOperation,
+      ),
+    },
+  ];
+}
+
+/** The operations of the first setting `operationSettings` gives. */
+export async function operationsForSpaceGroup(
+  info: SpaceGroupInfo,
+): Promise<SymmetryOperation[]> {
+  const [first] = await operationSettings(info);
+  return first!.operations;
 }

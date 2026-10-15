@@ -14,6 +14,7 @@ const FIXTURES = [
   "LiNiMnCoO2-4002443.cif",
   "aspirin-1515581.cif",
   "faujasite-1507214.cif",
+  "CoTiO3-5910080.cif",
 ];
 
 describe("symmetry analysis", () => {

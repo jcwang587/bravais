@@ -11,6 +11,10 @@ First public release.
   symmetries, and the structure in the standard cell.
 - `typesetSymbol(symbol)`: a Hermann-Mauguin symbol as textbooks print it,
   Fm3̄m and P2₁/c, from the ASCII forms of moyo, spglib and CIF files.
+- A rhombohedral symbol without `:H` or `:R` is read in the setting the
+  listed atoms fit, or the cell shape selects. A file whose atoms are listed
+  already expanded but do not close under its operations is refused instead
+  of being drawn wrong.
 - Expands the structure, repeats boundary sites as image atoms, and finds
   bonds with VESTA's cutoff table.
 - Renders with three.js: ray-cast atoms, closed bond tubes, occupancy pies on

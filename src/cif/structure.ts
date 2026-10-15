@@ -87,11 +87,34 @@ function mergeSpecies(
 ): void {
   const existing = species.find((entry) => entry.element === element);
   if (existing) {
-    existing.occupancy = Math.min(1, existing.occupancy + occupancy);
+    existing.occupancy += occupancy;
   } else {
     species.push({ element, occupancy });
   }
   species.sort((left, right) => right.occupancy - left.occupancy);
+}
+
+/** Totals this far above 1 are more than rounding. */
+const OVERFULL_TOLERANCE = 1e-6;
+
+/**
+ * A site holds at most one atom. Refined occupancies sometimes add up to a
+ * little more, and some files list far more; either way the species are
+ * scaled down to a full site, the rule pymatgen applies within its
+ * tolerance, so the drawn atom makes sense.
+ */
+function scaleOverfullSites(sites: Site[]): void {
+  for (const site of sites) {
+    const total = site.species.reduce(
+      (sum, species) => sum + species.occupancy,
+      0,
+    );
+    if (total > 1 + OVERFULL_TOLERANCE) {
+      for (const species of site.species) {
+        species.occupancy /= total;
+      }
+    }
+  }
 }
 
 function readSites(block: CifBlock): Site[] {
@@ -148,6 +171,7 @@ function readSites(block: CifBlock): Site[] {
       `${block.name || "The CIF"} has no atom sites with coordinates.`,
     );
   }
+  scaleOverfullSites(sites);
   return sites;
 }
 

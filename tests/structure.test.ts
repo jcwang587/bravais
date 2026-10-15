@@ -114,9 +114,10 @@ describe("expansion", () => {
     const structure = await readCif(fixture("LiNiMnCoO2-4002443.cif"));
     const counts = composition(expandStructure(structure).sites);
     expect(counts.O).toBe(6);
-    expect(counts.Li).toBeCloseTo(3, 6);
-    expect(counts.Co).toBeCloseTo(1, 3);
-    expect(counts.Mn).toBeCloseTo(1, 3);
+    // The metal site's refined occupancies add up to 1.0007 and are scaled to 1.
+    expect(counts.Li).toBeCloseTo(3, 3);
+    expect(counts.Co).toBeCloseTo(1, 2);
+    expect(counts.Mn).toBeCloseTo(1, 2);
     expect(counts.Ni).toBeCloseTo(1, 2);
   });
 

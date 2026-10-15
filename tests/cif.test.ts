@@ -115,6 +115,48 @@ describe("structure from CIF", () => {
     expect(sodium.species).toEqual([{ element: "Na", occupancy: 0.31 }]);
   });
 
+  it("scales a site whose occupancies add up to more than one atom", () => {
+    const text = [
+      "data_t",
+      "_cell_length_a 4",
+      "_cell_length_b 4",
+      "_cell_length_c 4",
+      "_cell_angle_alpha 90",
+      "_cell_angle_beta 90",
+      "_cell_angle_gamma 90",
+      "_symmetry_space_group_name_H-M 'P 1'",
+      "loop_",
+      "_atom_site_label",
+      "_atom_site_type_symbol",
+      "_atom_site_fract_x",
+      "_atom_site_fract_y",
+      "_atom_site_fract_z",
+      "_atom_site_occupancy",
+      "Ni1 Ni 0 0 0 1.03",
+      "Co1 Co 0.5 0.5 0.5 0.8",
+      "Ga1 Ga 0.5 0.5 0.5 0.4",
+      "Fe1 Fe2+ 0.25 0.25 0.25 0.7",
+      "Fe2 Fe3+ 0.25 0.25 0.25 0.5",
+      "O1 O 0.75 0.75 0.75 1",
+    ].join("\n");
+    const parsed = parseCifStructure(parseCif(text).blocks[0]!);
+    const occupancies = Object.fromEntries(
+      parsed.sites.map((site) => [
+        site.label,
+        site.species.map((s) => [s.element, Number(s.occupancy.toFixed(4))]),
+      ]),
+    );
+    expect(occupancies).toEqual({
+      Ni1: [["Ni", 1]],
+      Co1: [
+        ["Co", 0.6667],
+        ["Ga", 0.3333],
+      ],
+      Fe1: [["Fe", 1]],
+      O1: [["O", 1]],
+    });
+  });
+
   it("reads non-standard settings as written, with their Hall symbols", () => {
     const gypsum = parseCifStructure(
       parseCif(fixture("CaSO4-2H2O-2300259.cif")).blocks[0]!,

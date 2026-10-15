@@ -6,15 +6,6 @@
 A crystal structure viewer for the browser: read a CIF, apply its symmetry,
 draw it with three.js.
 
-- Symmetry from the file's operators, or from moyo by space-group symbol or
-  number. moyo also analyses the atoms themselves and names the standard
-  space group, whatever the file calls it.
-- Boundary sites repeated as image atoms; bonds from VESTA's cutoff table.
-- Shared sites drawn as occupancy pies; ray-cast atoms and bonds that stay
-  exact at any zoom.
-- Element colours kept clearly distinct, an element legend, and an a, b, c
-  axes gizmo.
-
 ## Install
 
 ```sh

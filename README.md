@@ -43,4 +43,5 @@ The code was written by Claude Code, under the author's direction and review.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). Notices for the bundled third-party material are in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

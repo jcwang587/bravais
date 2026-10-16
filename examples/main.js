@@ -41,20 +41,20 @@ function scene() {
   return buildScene(expandStructure(structure));
 }
 
-async function load(text, name) {
+async function load(text) {
   try {
     structure = await readCif(text);
     viewer.setLayers([{ scene: scene() }]);
     const symmetry = await symmetryDataset(structure);
-    status.textContent = `${name}: ${structure.sites.length} sites, ${symmetry.operations.length} operations, ${typesetSymbol(symmetry.symbol)} (${symmetry.number})`;
+    status.textContent = `${structure.sites.length} sites, ${symmetry.operations.length} operations, ${typesetSymbol(symmetry.symbol)} (${symmetry.number})`;
   } catch (error) {
-    status.textContent = `${name}: ${error.message}`;
+    status.textContent = error.message;
   }
 }
 
 async function loadFixture(name) {
   const response = await fetch(`../tests/fixtures/${name}`);
-  await load(await response.text(), name);
+  await load(await response.text());
 }
 
 fixtureSelect.addEventListener("change", () =>
@@ -63,7 +63,7 @@ fixtureSelect.addEventListener("change", () =>
 fileInput.addEventListener("change", async () => {
   const file = fileInput.files?.[0];
   if (file) {
-    await load(await file.text(), file.name);
+    await load(await file.text());
   }
 });
 document.getElementById("reset").addEventListener("click", () => {

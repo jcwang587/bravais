@@ -30,6 +30,14 @@
         align-items: center;
         gap: 6px;
       }
+      #fixture {
+        min-width: 20rem;
+      }
+      #file {
+        /* Chrome otherwise pads the control to a 34-character default width,
+           leaving a blank run after "No file chosen". */
+        field-sizing: content;
+      }
       #viewer {
         min-height: 0;
       }

@@ -3,16 +3,13 @@
 [![npm](https://img.shields.io/npm/v/bravais)](https://www.npmjs.com/package/bravais)
 [![CI](https://github.com/jcwang587/bravais/actions/workflows/ci.yml/badge.svg)](https://github.com/jcwang587/bravais/actions/workflows/ci.yml)
 
-A crystal structure viewer for the web.
+A minimal crystal structure viewer for the web.
 
 ## Install
 
 ```sh
 npm install bravais three
 ```
-
-An ES module for any page with WebGL 2 and WebAssembly: browsers, Electron,
-Tauri and other web views.
 
 ## Use
 

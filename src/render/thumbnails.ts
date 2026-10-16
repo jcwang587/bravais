@@ -1,29 +1,14 @@
-import {
-  AmbientLight,
-  DirectionalLight,
-  OrthographicCamera,
-  Quaternion,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-  ACESFilmicToneMapping,
-} from "three";
+import { Quaternion, Vector3 } from "three";
 
 import {
   applyPixelFrustum,
   applyViewState,
   cameraDistance,
   fitZoom,
-  quaternionTuple,
-  standardQuaternion,
+  standardView,
 } from "./camera.js";
-import {
-  AMBIENT_LIGHT_INTENSITY,
-  BACKGROUND_COLOR,
-  HEADLIGHT_INTENSITY,
-  HEADLIGHT_OFFSET,
-} from "./materials.js";
 import { createSceneModel, type SceneModel } from "./model.js";
+import { createStage } from "./stage.js";
 import type { ViewState } from "./view-state.js";
 import type { SceneLayer } from "../scene/build.js";
 
@@ -53,19 +38,8 @@ interface CachedModel {
  * canvases, so a list of structures does not open a context per card.
  */
 export function createThumbnailRenderer(): ThumbnailRenderer {
-  const renderer = new WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setClearColor(BACKGROUND_COLOR, 1);
-  renderer.toneMapping = ACESFilmicToneMapping;
-  const scene = new Scene();
-  const camera = new OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
-  const headlight = new DirectionalLight("#ffffff", HEADLIGHT_INTENSITY);
-  scene.add(
-    new AmbientLight("#ffffff", AMBIENT_LIGHT_INTENSITY),
-    headlight,
-    headlight.target,
-  );
+  const { renderer, scene, camera, updateHeadlight } = createStage();
   const cache = new Map<string, CachedModel>();
-  const headlightOffset = new Vector3();
 
   function modelFor(key: string, layers: SceneLayer[]): SceneModel {
     const cached = cache.get(key);
@@ -96,11 +70,7 @@ export function createThumbnailRenderer(): ThumbnailRenderer {
       }
       applyPixelFrustum(camera, width, height);
       const distance = cameraDistance(model.span);
-      const pose: ViewState = view ?? {
-        quaternion: quaternionTuple(standardQuaternion(model.cell)),
-        target: [0, 0, 0],
-        scale: 1,
-      };
+      const pose = view ?? standardView(model.cell);
       applyViewState(camera, pose, distance, model.span);
       const target = new Vector3(...pose.target);
       camera.position.add(target);
@@ -112,11 +82,7 @@ export function createThumbnailRenderer(): ThumbnailRenderer {
           height,
         ) * pose.scale;
       camera.updateProjectionMatrix();
-      headlightOffset
-        .set(...HEADLIGHT_OFFSET)
-        .multiplyScalar(Math.max(camera.position.length(), 4))
-        .applyQuaternion(camera.quaternion);
-      headlight.position.copy(camera.position).add(headlightOffset);
+      updateHeadlight();
 
       scene.add(model.group);
       renderer.render(scene, camera);

@@ -1,4 +1,5 @@
 import { elementFromCifSymbol } from "../structure/elements.js";
+import { samePosition, wrap } from "../structure/fractional.js";
 import { latticeFromParameters } from "../structure/lattice.js";
 import type {
   Lattice,
@@ -53,27 +54,6 @@ function requireNumber(block: CifBlock, tag: string): number {
     );
   }
   return value;
-}
-
-function wrapFraction(value: number): number {
-  const wrapped = value - Math.floor(value);
-  return wrapped >= 1 ? 0 : wrapped;
-}
-
-/** Periodic distance of two fractional positions, per axis, below `tolerance`. */
-export function sameFractionalPosition(
-  p: Vec3,
-  q: Vec3,
-  tolerance: number,
-): boolean {
-  for (let axis = 0; axis < 3; axis += 1) {
-    let delta = Math.abs((p[axis] as number) - (q[axis] as number));
-    delta -= Math.round(delta);
-    if (Math.abs(delta) > tolerance) {
-      return false;
-    }
-  }
-  return true;
 }
 
 function mergeSpecies(
@@ -147,13 +127,9 @@ function readSites(block: CifBlock): Site[] {
       );
     }
     const occupancy = parseCifNumber(occupancies?.[row]) ?? 1;
-    const fractional: Vec3 = [
-      wrapFraction(x),
-      wrapFraction(y),
-      wrapFraction(z),
-    ];
+    const fractional: Vec3 = [wrap(x), wrap(y), wrap(z)];
     const shared = sites.find((site) =>
-      sameFractionalPosition(site.fractional, fractional, SITE_MERGE_TOLERANCE),
+      samePosition(site.fractional, fractional, SITE_MERGE_TOLERANCE),
     );
     if (shared) {
       mergeSpecies(shared.species, element, occupancy);

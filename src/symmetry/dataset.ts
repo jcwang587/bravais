@@ -8,6 +8,7 @@ import {
 } from "@spglib/moyo-wasm";
 
 import { expandStructure } from "../structure/expand.js";
+import { wrapVector } from "../structure/fractional.js";
 import { latticeFromVectors } from "../structure/lattice.js";
 import {
   IDENTITY_OPERATION,
@@ -16,7 +17,6 @@ import {
   type Species,
   type Structure,
   type SymmetryOperation,
-  type Vec3,
 } from "../structure/types.js";
 import { ensureMoyo, fromMoyoOperation } from "./moyo.js";
 
@@ -92,13 +92,6 @@ function labelSpecies(sites: Site[]): {
   return { numbers, speciesByLabel };
 }
 
-function wrap(fractional: Vec3): Vec3 {
-  return fractional.map((value) => {
-    const wrapped = value - Math.floor(value);
-    return wrapped >= 1 - 1e-9 ? 0 : wrapped;
-  }) as Vec3;
-}
-
 /** moyo's standardized cell as a structure, every atom listed. */
 function standardStructure(
   dataset: MoyoDataset,
@@ -121,7 +114,7 @@ function standardStructure(
     return {
       label: `${element}${count}`,
       species,
-      fractional: wrap(position),
+      fractional: wrapVector(position),
     };
   });
   return {

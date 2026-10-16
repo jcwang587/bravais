@@ -1,3 +1,4 @@
+import { wrap } from "../structure/fractional.js";
 import type { SymmetryOperation, Vec3 } from "../structure/types.js";
 import { CifStructureError } from "./errors.js";
 
@@ -20,11 +21,6 @@ function parseCoefficient(text: string): number {
     );
   }
   return value;
-}
-
-function wrapTranslation(value: number): number {
-  const wrapped = value - Math.floor(value);
-  return Math.abs(wrapped - 1) < 1e-9 ? 0 : wrapped;
 }
 
 /**
@@ -66,23 +62,8 @@ export function parseSymmetryOperator(text: string): SymmetryOperation {
       }
     }
     rotation.push(...row);
-    translation.push(wrapTranslation(shift));
+    translation.push(wrap(shift));
   }
 
   return { rotation, translation: translation as Vec3 };
-}
-
-/** Apply an operation to fractional coordinates (no wrapping). */
-export function applyOperation(
-  operation: SymmetryOperation,
-  fractional: Vec3,
-): Vec3 {
-  const r = operation.rotation;
-  const [x, y, z] = fractional;
-  const t = operation.translation;
-  return [
-    (r[0] ?? 0) * x + (r[1] ?? 0) * y + (r[2] ?? 0) * z + t[0],
-    (r[3] ?? 0) * x + (r[4] ?? 0) * y + (r[5] ?? 0) * z + t[1],
-    (r[6] ?? 0) * x + (r[7] ?? 0) * y + (r[8] ?? 0) * z + t[2],
-  ];
 }

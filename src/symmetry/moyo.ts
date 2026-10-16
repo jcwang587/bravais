@@ -3,7 +3,6 @@ import initMoyo, {
   operations_from_number,
   space_group_type,
   type MoyoHallSymbolEntry,
-  type MoyoSetting,
 } from "@spglib/moyo-wasm";
 import moyoWasmBase64 from "virtual:moyo-wasm";
 
@@ -182,7 +181,6 @@ function describe(info: SpaceGroupInfo): string {
 export interface OperationSetting {
   /** moyo's name for the setting, such as "H", "R" or "b1"; "" when the group has one. */
   setting: string;
-  hallNumber: number;
   /** Operations of the conventional cell in that setting. */
   operations: SymmetryOperation[];
 }
@@ -206,7 +204,6 @@ export async function operationSettings(
     }
     return entries.map((entry) => ({
       setting: entry.setting,
-      hallNumber: entry.hall_number,
       operations: operations_from_number(
         entry.number,
         { type: "HallNumber", value: entry.hall_number },
@@ -217,14 +214,14 @@ export async function operationSettings(
   if (info.number === null) {
     throw new SpaceGroupLookupError("The CIF names no space group.");
   }
-  const setting: MoyoSetting = { type: "Spglib" };
   return [
     {
       setting: "",
-      hallNumber: space_group_type(info.number).hall_number,
-      operations: operations_from_number(info.number, setting, false).map(
-        fromMoyoOperation,
-      ),
+      operations: operations_from_number(
+        info.number,
+        { type: "Spglib" },
+        false,
+      ).map(fromMoyoOperation),
     },
   ];
 }

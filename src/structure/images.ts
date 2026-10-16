@@ -1,3 +1,4 @@
+import { wrap } from "./fractional.js";
 import type { Site, Vec3 } from "./types.js";
 
 /** A coordinate this close to 0 or 1 sits on the cell boundary. */
@@ -8,11 +9,6 @@ export interface PeriodicAtom {
   fractional: Vec3;
   /** True for a copy of a boundary site on the opposite face, edge or corner. */
   isImage: boolean;
-}
-
-function canonicalize(value: number): number {
-  const wrapped = value - Math.floor(value);
-  return Math.abs(wrapped - 1) < BOUNDARY_TOLERANCE ? 0 : wrapped;
 }
 
 /**
@@ -26,7 +22,9 @@ export function periodicAtoms(
 ): PeriodicAtom[] {
   const atoms: PeriodicAtom[] = [];
   sites.forEach((site, siteIndex) => {
-    const fractional = site.fractional.map(canonicalize) as Vec3;
+    const fractional = site.fractional.map((value) =>
+      wrap(value, BOUNDARY_TOLERANCE),
+    ) as Vec3;
     atoms.push({ siteIndex, fractional, isImage: false });
     if (!includeImages) {
       return;

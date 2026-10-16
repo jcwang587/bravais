@@ -1,22 +1,14 @@
-import { applyOperation } from "../cif/symmetry-operators.js";
+import {
+  EQUIVALENT_TOLERANCE,
+  applyOperation,
+  samePosition,
+  wrap,
+  wrapVector,
+} from "./fractional.js";
 import type { Site, SymmetryOperation, Vec3 } from "./types.js";
 
-/** Positions this close in fractional coordinates are one position, as in the expansion. */
-const SAME_POSITION_TOLERANCE = 1e-3;
 /** Buckets per cell edge, much wider than the tolerance, so a match sits in a bucket or its neighbour. */
 const BUCKETS = 100;
-
-function wrap(value: number): number {
-  const wrapped = value - Math.floor(value);
-  return wrapped >= 1 - 1e-9 ? 0 : wrapped;
-}
-
-function samePosition(a: Vec3, b: Vec3): boolean {
-  return a.every((value, axis) => {
-    const difference = Math.abs(wrap(value) - wrap(b[axis]!));
-    return Math.min(difference, 1 - difference) < SAME_POSITION_TOLERANCE;
-  });
-}
 
 /** Listed positions bucketed for lookups within tolerance, across the cell's periodic boundaries. */
 class PositionIndex {
@@ -38,7 +30,7 @@ class PositionIndex {
 
   /** Indices of the listed positions within tolerance of `position`. */
   near(position: Vec3): number[] {
-    const wrapped = position.map(wrap) as Vec3;
+    const wrapped = wrapVector(position);
     const base = wrapped.map((value) => Math.floor(value * BUCKETS));
     const found: number[] = [];
     for (const dx of [-1, 0, 1]) {
@@ -50,7 +42,11 @@ class PositionIndex {
           for (const index of this.buckets.get(key) ?? []) {
             if (
               !found.includes(index) &&
-              samePosition(this.positions[index]!, wrapped)
+              samePosition(
+                this.positions[index]!,
+                wrapped,
+                EQUIVALENT_TOLERANCE,
+              )
             ) {
               found.push(index);
             }

@@ -7,7 +7,7 @@ import {
   operationsForSpaceGroup,
   readCif,
 } from "../src/index.js";
-import { applyOperation } from "../src/cif/symmetry-operators.js";
+import { applyOperation } from "../src/structure/fractional.js";
 import { periodicAtoms } from "../src/structure/images.js";
 import { latticeFromParameters } from "../src/structure/lattice.js";
 import type { Site } from "../src/structure/types.js";

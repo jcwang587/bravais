@@ -73,6 +73,15 @@ export function standardQuaternion(cell: Mat3): Quaternion {
   return new Quaternion().setFromRotationMatrix(basis).normalize();
 }
 
+/** The standard view of a cell as a view state: standard orientation, centred, fitted. */
+export function standardView(cell: Mat3): ViewState {
+  return {
+    quaternion: quaternionTuple(standardQuaternion(cell)),
+    target: [0, 0, 0],
+    scale: 1,
+  };
+}
+
 /** Pose a camera from a view state. */
 export function applyViewState(
   camera: OrthographicCamera,

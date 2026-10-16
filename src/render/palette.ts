@@ -280,106 +280,78 @@ interface Assignment {
  * a colour already on screen takes the nearest clearly different colour.
  * The outcome depends only on the order in which elements first appeared.
  */
-class SessionPalette {
-  private readonly assigned = new Map<string, Assignment>();
+const assigned = new Map<string, Assignment>();
 
-  /** Assign colours to the elements not yet assigned, most common first. */
-  ensure(elements: readonly string[]): void {
-    const newcomers = [...new Set(elements)]
-      .filter((element) => !this.assigned.has(element))
-      .sort((left, right) => priorityRank(left) - priorityRank(right));
-    for (const element of newcomers) {
-      this.assigned.set(
-        element,
-        this.choose(anchorHex(element), anchorColor(element)),
-      );
-    }
-  }
-
-  color(element: string): string {
-    const assignment = this.assigned.get(element);
-    if (assignment) {
-      return assignment.hex;
-    }
-    this.ensure([element]);
-    return (this.assigned.get(element) as Assignment).hex;
-  }
-
-  /** Elements and their colours, in order of first appearance. */
-  entries(): [string, string][] {
-    return [...this.assigned].map(([element, assignment]) => [
-      element,
-      assignment.hex,
-    ]);
-  }
-
-  reset(): void {
-    this.assigned.clear();
-  }
-
-  /**
-   * The anchor itself when it is clearly different from every colour on
-   * screen; otherwise the cheapest candidate that is, taking the better
-   * separated of equally cheap ones; otherwise the best separated of all.
-   */
-  private choose(anchorHex: string | null, anchor: Oklch): Assignment {
-    const taken = [...this.assigned.values()].map(
-      (assignment) => assignment.lab,
+/**
+ * The anchor itself when it is clearly different from every colour on
+ * screen; otherwise the cheapest candidate that is, taking the better
+ * separated of equally cheap ones; otherwise the best separated of all.
+ */
+function choose(hex: string | null, anchor: Oklch): Assignment {
+  const taken = [...assigned.values()].map((assignment) => assignment.lab);
+  const separationFrom = (lab: Oklab) =>
+    taken.reduce(
+      (minimum, other) => Math.min(minimum, weightedDistance(lab, other)),
+      Infinity,
     );
-    const separationFrom = (lab: Oklab) =>
-      taken.reduce(
-        (minimum, other) => Math.min(minimum, weightedDistance(lab, other)),
-        Infinity,
-      );
-    const anchorLab = oklchToOklab(anchor);
-    if (separationFrom(anchorLab) >= MIN_DISTANCE) {
-      return { hex: anchorHex ?? oklabToHex(anchorLab), lab: anchorLab };
-    }
-    let best: Candidate | null = null;
-    let bestSeparation = -Infinity;
-    let bestCost = Infinity;
-    let fallback: Candidate | null = null;
-    let fallbackSeparation = -Infinity;
-    for (const entry of candidatesAround(anchor)) {
-      const separation = separationFrom(entry.lab);
-      if (separation >= MIN_DISTANCE) {
-        if (
-          entry.cost < bestCost - 1e-9 ||
-          (Math.abs(entry.cost - bestCost) <= 1e-9 &&
-            separation > bestSeparation)
-        ) {
-          best = entry;
-          bestCost = entry.cost;
-          bestSeparation = separation;
-        }
-        if (entry.cost > bestCost + 1e-9) {
-          break;
-        }
-      } else if (separation > fallbackSeparation) {
-        fallback = entry;
-        fallbackSeparation = separation;
-      }
-    }
-    const chosen = best ?? fallback ?? { lab: anchorLab, lch: anchor, cost: 0 };
-    return { hex: oklabToHex(chosen.lab), lab: chosen.lab };
+  const anchorLab = oklchToOklab(anchor);
+  if (separationFrom(anchorLab) >= MIN_DISTANCE) {
+    return { hex: hex ?? oklabToHex(anchorLab), lab: anchorLab };
   }
+  let best: Candidate | null = null;
+  let bestSeparation = -Infinity;
+  let bestCost = Infinity;
+  let fallback: Candidate | null = null;
+  let fallbackSeparation = -Infinity;
+  for (const entry of candidatesAround(anchor)) {
+    const separation = separationFrom(entry.lab);
+    if (separation >= MIN_DISTANCE) {
+      if (
+        entry.cost < bestCost - 1e-9 ||
+        (Math.abs(entry.cost - bestCost) <= 1e-9 && separation > bestSeparation)
+      ) {
+        best = entry;
+        bestCost = entry.cost;
+        bestSeparation = separation;
+      }
+      if (entry.cost > bestCost + 1e-9) {
+        break;
+      }
+    } else if (separation > fallbackSeparation) {
+      fallback = entry;
+      fallbackSeparation = separation;
+    }
+  }
+  const chosen = best ?? fallback ?? { lab: anchorLab, lch: anchor, cost: 0 };
+  return { hex: oklabToHex(chosen.lab), lab: chosen.lab };
 }
 
-export const elementPalette = new SessionPalette();
-
-/** Assign session colours to `elements` before drawing them. */
+/** Assign session colours to `elements` before drawing them, most common first. */
 export function ensureElementColors(elements: readonly string[]): void {
-  elementPalette.ensure(elements);
+  const newcomers = [...new Set(elements)]
+    .filter((element) => !assigned.has(element))
+    .sort((left, right) => priorityRank(left) - priorityRank(right));
+  for (const element of newcomers) {
+    assigned.set(element, choose(anchorHex(element), anchorColor(element)));
+  }
 }
 
 /** The session colour of an element, assigned now if it is new. */
 export function elementColor(element: string): string {
-  return elementPalette.color(element);
+  const assignment = assigned.get(element);
+  if (assignment) {
+    return assignment.hex;
+  }
+  ensureElementColors([element]);
+  return (assigned.get(element) as Assignment).hex;
 }
 
 /** Elements seen in this session with their colours, in order of first appearance. */
 export function elementColorAssignments(): [string, string][] {
-  return elementPalette.entries();
+  return [...assigned].map(([element, assignment]) => [
+    element,
+    assignment.hex,
+  ]);
 }
 
 /**
@@ -388,5 +360,5 @@ export function elementColorAssignments(): [string, string][] {
  * which pick up new colours at their next draw.
  */
 export function resetElementColors(): void {
-  elementPalette.reset();
+  assigned.clear();
 }

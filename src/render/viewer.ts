@@ -1,15 +1,4 @@
-import {
-  AmbientLight,
-  DirectionalLight,
-  Fog,
-  MOUSE,
-  OrthographicCamera,
-  Quaternion,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-  ACESFilmicToneMapping,
-} from "three";
+import { Fog, MOUSE, Quaternion, Vector3 } from "three";
 import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 
 import {
@@ -19,16 +8,13 @@ import {
   fitZoom,
   quaternionTuple,
   standardQuaternion,
+  standardView,
 } from "./camera.js";
 import { AxesGizmo } from "./gizmo.js";
 import { ElementLegend, ensureViewerStyles } from "./legend.js";
-import {
-  AMBIENT_LIGHT_INTENSITY,
-  BACKGROUND_COLOR,
-  HEADLIGHT_INTENSITY,
-  HEADLIGHT_OFFSET,
-} from "./materials.js";
+import { BACKGROUND_COLOR } from "./materials.js";
 import { createSceneModel, type SceneModel } from "./model.js";
+import { createStage } from "./stage.js";
 import type { ViewState } from "./view-state.js";
 import type { SceneLayer } from "../scene/build.js";
 
@@ -138,23 +124,12 @@ export function createViewer(
   container.classList.add("bravais-viewer");
 
   // The stencil buffer is for the gizmo: its letters change colour over the axes.
-  const renderer = new WebGLRenderer({
-    antialias: true,
-    alpha: true,
+  const { renderer, scene, camera, updateHeadlight } = createStage({
     stencil: true,
   });
   renderer.setPixelRatio(root.defaultView?.devicePixelRatio ?? 1);
-  renderer.setClearColor(BACKGROUND_COLOR, 1);
-  renderer.toneMapping = ACESFilmicToneMapping;
   renderer.domElement.className = "bravais-canvas";
   container.appendChild(renderer.domElement);
-
-  const scene = new Scene();
-  const camera = new OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
-  const ambient = new AmbientLight("#ffffff", AMBIENT_LIGHT_INTENSITY);
-  const headlight = new DirectionalLight("#ffffff", HEADLIGHT_INTENSITY);
-  headlight.target.position.set(0, 0, 0);
-  scene.add(ambient, headlight, headlight.target);
 
   const legend = options.legend === false ? null : new ElementLegend(root);
   if (legend) {
@@ -193,7 +168,6 @@ export function createViewer(
   let lastZoom = 0;
   const lastTarget = new Vector3();
   const listeners = new Set<() => void>();
-  const headlightOffset = new Vector3();
 
   function notify(): void {
     framesSinceNotify = 0;
@@ -201,15 +175,6 @@ export function createViewer(
     for (const listener of listeners) {
       listener();
     }
-  }
-
-  function updateHeadlight(): void {
-    const lightDistance = Math.max(camera.position.length(), 4);
-    headlightOffset
-      .set(...HEADLIGHT_OFFSET)
-      .multiplyScalar(lightDistance)
-      .applyQuaternion(camera.quaternion);
-    headlight.position.copy(camera.position).add(headlightOffset);
   }
 
   function render(): void {
@@ -312,17 +277,18 @@ export function createViewer(
   });
   controls.addEventListener("change", wake);
 
+  /** Refit to the container's size, keeping the zoom relative to the fit. */
+  function resize(): void {
+    const scale = fitted > 0 ? camera.zoom / fitted : 1;
+    measure();
+    refit(camera.quaternion);
+    camera.zoom = fitted * scale;
+    camera.updateProjectionMatrix();
+    render();
+  }
+
   const observer =
-    typeof ResizeObserver === "undefined"
-      ? null
-      : new ResizeObserver(() => {
-          const scale = fitted > 0 ? camera.zoom / fitted : 1;
-          measure();
-          refit(camera.quaternion);
-          camera.zoom = fitted * scale;
-          camera.updateProjectionMatrix();
-          render();
-        });
+    typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
   observer?.observe(container);
   measure();
 
@@ -339,17 +305,6 @@ export function createViewer(
     cameraMoved();
   }
 
-  function standardView(): ViewState {
-    const quaternion = model
-      ? standardQuaternion(model.cell)
-      : new Quaternion();
-    return {
-      quaternion: quaternionTuple(quaternion),
-      target: [0, 0, 0],
-      scale: 1,
-    };
-  }
-
   const viewer: Viewer = {
     setLayers(layers, view = null) {
       viewer.clear();
@@ -363,7 +318,7 @@ export function createViewer(
       legend?.setElements(model.elements);
       gizmo?.setCell(model.cell);
       measure();
-      applyView(view ?? standardView());
+      applyView(view ?? standardView(model.cell));
       render();
     },
     clear() {
@@ -393,18 +348,13 @@ export function createViewer(
       render();
     },
     resetView() {
-      applyView(standardView());
+      if (model) {
+        applyView(standardView(model.cell));
+      }
       render();
       notify();
     },
-    resize() {
-      const scale = fitted > 0 ? camera.zoom / fitted : 1;
-      measure();
-      refit(camera.quaternion);
-      camera.zoom = fitted * scale;
-      camera.updateProjectionMatrix();
-      render();
-    },
+    resize,
     render,
     onInteraction(listener) {
       listeners.add(listener);

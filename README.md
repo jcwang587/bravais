@@ -5,8 +5,6 @@
 
 A minimal crystal structure viewer for the web.
 
-Try it at https://jcwang.dev/bravais/
-
 ## Install
 
 ```sh

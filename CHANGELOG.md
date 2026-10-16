@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 - 2026-10-16
+
+- README revised.
+
 ## 0.1.1 - 2026-10-16
 
 - The TrackballControls addon is bundled, so the module's only bare import is

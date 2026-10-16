@@ -11,9 +11,9 @@ const MOYO_WASM_MODULE_ID = "virtual:moyo-wasm";
 const MOYO_GLUE_FALLBACK = "new URL('moyo_wasm_bg.wasm', import.meta.url)";
 
 /**
- * Serve the moyo WebAssembly binary as a base64 string module. The renderer
- * runs from file://, where fetching a sibling .wasm file is not an option, so
- * the bundle carries the binary and instantiates it from memory.
+ * Serve the moyo WebAssembly binary as a base64 string module. A page
+ * loaded from file:// cannot fetch a sibling .wasm file, so the bundle
+ * carries the binary and instantiates it from memory.
  *
  * The glue's own lookup of the binary is unreachable, since `ensureMoyo`
  * always hands it the bytes, but Vite would still inline a second copy of
@@ -54,10 +54,8 @@ export default defineConfig({
   build: {
     target: "es2022",
     sourcemap: true,
-    // three.js itself is the consumer's: a peer dependency, not part of the
-    // bundle. The one addon used, TrackballControls, is bundled, since it
-    // imports only `three` and a consumer without a bundler should not have
-    // to map three's addons as well.
+    // three.js is a peer dependency, not part of the bundle. The one addon
+    // used, TrackballControls, is bundled, so `three` is the only bare import.
     rollupOptions: { external: ["three"] },
     lib: {
       entry: "src/index.ts",

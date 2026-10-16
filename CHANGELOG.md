@@ -2,10 +2,8 @@
 
 ## 0.1.1 - 2026-10-16
 
-- The TrackballControls addon is bundled, so the module imports only `three`
-  itself. A consumer without a bundler maps one module instead of two, and an
-  Electron app packaged with electron-builder, which drops every dependency's
-  `examples` folder, no longer loses the addon.
+- The TrackballControls addon is bundled, so the module's only bare import is
+  `three`.
 
 ## 0.1.0 - 2026-10-15
 

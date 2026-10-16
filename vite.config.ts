@@ -54,9 +54,11 @@ export default defineConfig({
   build: {
     target: "es2022",
     sourcemap: true,
-    // three.js and its addons are the consumer's: a peer dependency, not part
-    // of the bundle, so the TrackballControls addon always matches their three.
-    rollupOptions: { external: ["three", /^three\//] },
+    // three.js itself is the consumer's: a peer dependency, not part of the
+    // bundle. The one addon used, TrackballControls, is bundled, since it
+    // imports only `three` and a consumer without a bundler should not have
+    // to map three's addons as well.
+    rollupOptions: { external: ["three"] },
     lib: {
       entry: "src/index.ts",
       formats: ["es"],

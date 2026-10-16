@@ -53,7 +53,7 @@ async function load(text) {
 }
 
 async function loadFixture(name) {
-  const response = await fetch(`../tests/fixtures/${name}`);
+  const response = await fetch(`./${name}`);
   await load(await response.text());
 }
 

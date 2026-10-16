@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/jcwang587/bravais.git"
   },
-  "homepage": "https://github.com/jcwang587/bravais#readme",
+  "homepage": "https://jcwang.dev/bravais/",
   "bugs": {
     "url": "https://github.com/jcwang587/bravais/issues"
   },
@@ -39,8 +39,9 @@
     "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
-    "demo": "vite --open /examples/",
+    "demo": "vite --config vite.demo.config.ts --open",
     "build": "vite build && tsc -p tsconfig.build.json",
+    "build:site": "vite build --config vite.demo.config.ts",
     "dev": "vite build --watch",
     "test": "vitest run",
     "check": "tsc -p tsconfig.json && prettier --check .",

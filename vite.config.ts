@@ -20,7 +20,7 @@ const MOYO_GLUE_FALLBACK = "new URL('moyo_wasm_bg.wasm', import.meta.url)";
  * the binary into it as a data: URL and double the bundle. The lookup is
  * cut out before Vite's asset handling sees it.
  */
-function inlineMoyoWasm(): Plugin {
+export function inlineMoyoWasm(): Plugin {
   const resolvedId = `\0${MOYO_WASM_MODULE_ID}`;
   return {
     name: "bravais-inline-moyo-wasm",

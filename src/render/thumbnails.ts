@@ -16,15 +16,16 @@ import {
   fitZoom,
   quaternionTuple,
   standardQuaternion,
-  type ViewState,
-} from "./camera";
+} from "./camera.js";
 import {
   AMBIENT_LIGHT_INTENSITY,
   BACKGROUND_COLOR,
   HEADLIGHT_INTENSITY,
   HEADLIGHT_OFFSET,
-} from "./materials";
-import { createSceneModel, type SceneLayer, type SceneModel } from "./model";
+} from "./materials.js";
+import { createSceneModel, type SceneModel } from "./model.js";
+import type { ViewState } from "./view-state.js";
+import type { SceneLayer } from "../scene/build.js";
 
 export interface ThumbnailRenderer {
   /**

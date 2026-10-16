@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { typesetSymbol } from "../src/index";
+import { typesetSymbol } from "../src/index.js";
 
 describe("typeset Hermann-Mauguin symbols", () => {
   it("prints moyo's symbols the textbook way", () => {

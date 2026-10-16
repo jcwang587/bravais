@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { hexToOklab } from "../src/render/oklab";
-import { ELEMENT_SYMBOLS } from "../src/structure/elements";
+import { hexToOklab } from "../src/render/oklab.js";
+import { ELEMENT_SYMBOLS } from "../src/structure/elements.js";
 import {
   elementColor,
   elementColorAssignments,
   ensureElementColors,
   resetElementColors,
-} from "../src/render/palette";
+} from "../src/render/palette.js";
 
 const BASE_COLORS: Record<string, string> = {
   O: "#e15949",

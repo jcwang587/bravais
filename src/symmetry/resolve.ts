@@ -1,12 +1,15 @@
-import { CifStructureError, type ParsedCifStructure } from "../cif/structure";
-import { listingClosure } from "../structure/closure";
+import {
+  CifStructureError,
+  type ParsedCifStructure,
+} from "../cif/structure.js";
+import { listingClosure } from "../structure/closure.js";
 import {
   IDENTITY_OPERATION,
   type LatticeParameters,
   type Site,
   type SymmetryOperation,
-} from "../structure/types";
-import { operationSettings } from "./moyo";
+} from "../structure/types.js";
+import { operationSettings } from "./moyo.js";
 
 /** Lengths within this fraction, and angles within this many degrees, are equal. */
 const SAME_LENGTH = 1e-3;

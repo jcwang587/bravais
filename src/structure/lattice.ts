@@ -1,4 +1,4 @@
-import type { Lattice, LatticeParameters, Mat3, Vec3 } from "./types";
+import type { Lattice, LatticeParameters, Mat3, Vec3 } from "./types.js";
 
 const DEGREES = Math.PI / 180;
 

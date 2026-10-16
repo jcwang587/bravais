@@ -7,8 +7,8 @@ import {
   parseCif,
   parseCifStructure,
   readCif,
-} from "../src/index";
-import { fixture, withoutOperatorLoop } from "./helpers";
+} from "../src/index.js";
+import { fixture, withoutOperatorLoop } from "./helpers.js";
 
 /**
  * The ten Crystallography Open Database entries under tests/fixtures, from

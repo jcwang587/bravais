@@ -21,8 +21,8 @@ import {
   type WebGLRenderer,
 } from "three";
 
-import type { Mat3 } from "../structure/types";
-import { GIZMO_AXIS_STENCIL, createGizmoMaterial } from "./materials";
+import type { Mat3 } from "../structure/types.js";
+import { GIZMO_AXIS_STENCIL, createGizmoMaterial } from "./materials.js";
 
 /** Axis colours and proportions currently follow Pretty Lattice's gizmo. */
 const AXIS_COLORS = { a: "#d27686", b: "#80c393", c: "#75a4dd" } as const;

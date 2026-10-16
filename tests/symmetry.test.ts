@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { expandStructure, readCif, symmetryDataset } from "../src/index";
-import { fixture } from "./helpers";
+import { expandStructure, readCif, symmetryDataset } from "../src/index.js";
+import { fixture } from "./helpers.js";
 
 const FIXTURES = [
   "CoO-9008618.cif",

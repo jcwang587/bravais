@@ -1,4 +1,4 @@
-import type { Site, Vec3 } from "./types";
+import type { Site, Vec3 } from "./types.js";
 
 /** A coordinate this close to 0 or 1 sits on the cell boundary. */
 const BOUNDARY_TOLERANCE = 1e-4;

@@ -20,7 +20,9 @@ export interface Lattice extends LatticeParameters {
 }
 
 export interface Species {
+  /** Element symbol, such as "Fe"; "D" for deuterium. */
   element: string;
+  /** Share of the site this species occupies, 0 to 1; a site's shares add up to at most 1. */
   occupancy: number;
 }
 
@@ -38,10 +40,13 @@ export interface SymmetryOperation {
   translation: Vec3;
 }
 
+/** What a CIF says about its space group; null for what it leaves out. */
 export interface SpaceGroupInfo {
+  /** Number in the International Tables, 1 to 230. */
   number: number | null;
   /** Hermann-Mauguin symbol as written in the file. */
   symbol: string | null;
+  /** Hall symbol as written in the file. */
   hallSymbol: string | null;
 }
 

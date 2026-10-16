@@ -1,17 +1,7 @@
 import { Box3, Matrix4, OrthographicCamera, Quaternion, Vector3 } from "three";
 
-import type { Mat3, Vec3 } from "../structure/types";
-
-/**
- * A camera pose the app can store and restore: orientation, the point looked
- * at (in the centred frame) and the zoom relative to the fitted zoom, so the
- * same view reads the same in a 72 px thumbnail and the main viewer.
- */
-export interface ViewState {
-  quaternion: [number, number, number, number];
-  target: Vec3;
-  scale: number;
-}
+import type { Mat3 } from "../structure/types.js";
+import type { ViewState } from "./view-state.js";
 
 /**
  * The standard view is Naumann's clinographic projection, the convention of

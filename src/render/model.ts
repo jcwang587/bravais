@@ -18,8 +18,8 @@ import {
   Vector3,
 } from "three";
 
-import type { SceneAtom, StructureScene } from "../scene/build";
-import type { Mat3, Vec3 } from "../structure/types";
+import type { SceneAtom, SceneLayer, StructureScene } from "../scene/build.js";
+import type { Mat3, Vec3 } from "../structure/types.js";
 import {
   SECTOR_SITES_PER_ROW,
   SECTOR_TEXELS_PER_SITE,
@@ -29,8 +29,8 @@ import {
   createBondMaterial,
   createCellFrameMaterial,
   disposeMaterial,
-} from "./materials";
-import { elementColor, ensureElementColors } from "./palette";
+} from "./materials.js";
+import { elementColor, ensureElementColors } from "./palette.js";
 
 /** Every atom is drawn at this radius, in ångström: one size for all. */
 const ATOM_RADIUS = 0.4;
@@ -50,13 +50,6 @@ const BOND_START = Math.sqrt(
   CAP_RADIUS * CAP_RADIUS - BOND_RADIUS * BOND_RADIUS,
 );
 const UP = new Vector3(0, 1, 0);
-
-/** One structure drawn in the viewer; several overlay with their own opacity. */
-export interface SceneLayer {
-  scene: StructureScene;
-  /** 1 draws normally; the raw model behind a refined one uses 0.6. */
-  opacity?: number;
-}
 
 export interface SceneModel {
   group: Group;

@@ -6,12 +6,12 @@ import {
   expandStructure,
   operationsForSpaceGroup,
   readCif,
-} from "../src/index";
-import { applyOperation } from "../src/cif/symmetry-operators";
-import { periodicAtoms } from "../src/structure/images";
-import { latticeFromParameters } from "../src/structure/lattice";
-import type { Site } from "../src/structure/types";
-import { fixture, withoutOperatorLoop } from "./helpers";
+} from "../src/index.js";
+import { applyOperation } from "../src/cif/symmetry-operators.js";
+import { periodicAtoms } from "../src/structure/images.js";
+import { latticeFromParameters } from "../src/structure/lattice.js";
+import type { Site } from "../src/structure/types.js";
+import { fixture, withoutOperatorLoop } from "./helpers.js";
 
 function composition(sites: Site[]): Record<string, number> {
   const counts: Record<string, number> = {};

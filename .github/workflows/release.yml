@@ -2,31 +2,24 @@ name: Release
 
 # Pushing a tag such as v0.1.0 publishes that version to npm with provenance
 # and opens a GitHub release with generated notes. The tag must match the
-# version in package.json, and the repository needs an NPM_TOKEN secret
-# (an npm granular access token with publish rights to the package).
+# version in package.json. npm is signed into with GitHub's OIDC token, so no
+# npm token is stored: npmjs.com must list this repository and this file as a
+# trusted publisher of bravais. A version already on npm is skipped and only
+# gets its GitHub release.
 
 on:
   push:
     tags: ["v*"]
 
 permissions:
-  contents: write
-  id-token: write
+  contents: write # gh release create
+  id-token: write # trusted publishing and provenance
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          registry-url: https://registry.npmjs.org
-      - run: npm ci
-      - run: npm run check
-      - run: npm test
-      - run: npm run build
+      - uses: actions/checkout@v7
       - name: Tag matches package.json
         run: |
           version="v$(node -p "require('./package.json').version")"
@@ -34,9 +27,27 @@ jobs:
             echo "tag $GITHUB_REF_NAME does not match package.json $version"
             exit 1
           }
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - run: gh release create "$GITHUB_REF_NAME" --generate-notes
+      - uses: actions/setup-node@v7
+        with:
+          # Trusted publishing needs npm 11.5.1 or newer, which Node 24 bundles.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:package
+      - name: Publish to npm, unless this version is there already
+        run: |
+          if npm view "bravais@${GITHUB_REF_NAME#v}" version >/dev/null 2>&1; then
+            echo "bravais@${GITHUB_REF_NAME#v} is already published"
+          else
+            npm publish --provenance --access public
+          fi
+      - name: GitHub release, unless it exists
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 ||
+            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}

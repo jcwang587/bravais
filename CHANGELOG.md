@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0
+## 0.1.0 - 2026-10-15
 
 First public release.
 
@@ -10,7 +10,7 @@ First public release.
   standard space group and its Hall setting, Wyckoff letters, site
   symmetries, and the structure in the standard cell.
 - `typesetSymbol(symbol)`: a Hermann-Mauguin symbol as textbooks print it,
-  Fm3̄m and P2₁/c, from the ASCII forms of moyo, spglib and CIF files.
+  Fm3̅m and P2₁/c, from the ASCII forms of moyo, spglib and CIF files.
 - A rhombohedral symbol without `:H` or `:R` is read in the setting the
   listed atoms fit, or the cell shape selects. A file whose atoms are listed
   already expanded but do not close under its operations is refused instead

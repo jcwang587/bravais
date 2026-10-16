@@ -8,7 +8,7 @@ function subscript(digit: string): string {
 /**
  * A Hermann-Mauguin symbol the way textbooks print it: no spaces, screw
  * axes with subscripts and rotoinversion axes with a bar, so `F m -3 m`
- * becomes Fm3̄m and `P 2_1/c` becomes P2₁/c. The ASCII forms of moyo and
+ * becomes Fm3̅m and `P 2_1/c` becomes P2₁/c. The ASCII forms of moyo and
  * spglib (`2_1`) and of CIF files (`21`, the digits run together) are both
  * read. A setting suffix such as `:H` is kept after a space. A symbol
  * written without spaces is only given bars and underscore subscripts,

@@ -1,5 +1,5 @@
-import { applyOperation } from "../cif/symmetry-operators";
-import type { Site, SymmetryOperation, Vec3 } from "./types";
+import { applyOperation } from "../cif/symmetry-operators.js";
+import type { Site, SymmetryOperation, Vec3 } from "./types.js";
 
 /** Positions this close in fractional coordinates are one position, as in the expansion. */
 const SAME_POSITION_TOLERANCE = 1e-3;

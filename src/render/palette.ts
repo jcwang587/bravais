@@ -1,5 +1,5 @@
 import elementColors from "../data/element-colors.json";
-import { ELEMENT_SYMBOLS } from "../structure/elements";
+import { ELEMENT_SYMBOLS } from "../structure/elements.js";
 import {
   clampChromaToGamut,
   hexToOklab,
@@ -8,7 +8,7 @@ import {
   oklchToOklab,
   type Oklab,
   type Oklch,
-} from "./oklab";
+} from "./oklab.js";
 
 const BASE_COLORS = elementColors.elements as Record<string, string>;
 
@@ -382,7 +382,11 @@ export function elementColorAssignments(): [string, string][] {
   return elementPalette.entries();
 }
 
-/** Forget the session's colours, for when every structure is cleared. */
+/**
+ * Forget the session's colours, for when every structure is cleared. The
+ * palette is shared by every viewer and thumbnail renderer in the page,
+ * which pick up new colours at their next draw.
+ */
 export function resetElementColors(): void {
   elementPalette.reset();
 }

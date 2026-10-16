@@ -1,8 +1,9 @@
-import { CifSyntaxError, tokenizeCif, type CifToken } from "./tokenizer";
+import { CifSyntaxError, tokenizeCif, type CifToken } from "./tokenizer.js";
 
 export interface CifLoop {
   /** Lowercase tags, in column order. */
   tags: string[];
+  /** One array of values per row, in `tags` order. */
   rows: string[][];
 }
 
@@ -45,6 +46,7 @@ export class CifBlock {
   }
 }
 
+/** The data blocks of a CIF, in file order. */
 export interface CifDocument {
   blocks: CifBlock[];
 }

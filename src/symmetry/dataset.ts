@@ -7,8 +7,8 @@ import {
   type MoyoHallSymbolEntry,
 } from "@spglib/moyo-wasm";
 
-import { expandStructure } from "../structure/expand";
-import { latticeFromVectors } from "../structure/lattice";
+import { expandStructure } from "../structure/expand.js";
+import { latticeFromVectors } from "../structure/lattice.js";
 import {
   IDENTITY_OPERATION,
   type Mat3,
@@ -17,8 +17,8 @@ import {
   type Structure,
   type SymmetryOperation,
   type Vec3,
-} from "../structure/types";
-import { ensureMoyo, fromMoyoOperation } from "./moyo";
+} from "../structure/types.js";
+import { ensureMoyo, fromMoyoOperation } from "./moyo.js";
 
 /**
  * Distance tolerance of the symmetry search, in ångström: pymatgen's
@@ -26,6 +26,7 @@ import { ensureMoyo, fromMoyoOperation } from "./moyo";
  */
 const DEFAULT_SYMPREC = 0.01;
 
+/** moyo could not analyse the structure. */
 export class SymmetryAnalysisError extends Error {
   constructor(message: string) {
     super(message);
@@ -44,11 +45,15 @@ export interface SymmetryDataset {
   number: number;
   /** Short Hermann-Mauguin symbol of the standard setting, as moyo writes it. */
   symbol: string;
+  /** Full Hermann-Mauguin symbol of that setting. */
   fullSymbol: string;
+  /** Hall symbol of that setting. */
   hallSymbol: string;
+  /** Hall number of that setting, 1 to 530, as spglib counts them. */
   hallNumber: number;
   /** Setting of the Hall entry: "2" for origin choice 2, "H" for hexagonal axes, "" when there is one setting. */
   setting: string;
+  /** The crystal system, as moyo names it. */
   crystalSystem: string;
   /** Operations of the analysed cell, in its own basis. */
   operations: SymmetryOperation[];

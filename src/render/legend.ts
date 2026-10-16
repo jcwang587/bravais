@@ -1,4 +1,4 @@
-import { elementColor } from "./palette";
+import { elementColor } from "./palette.js";
 
 const STYLE_ID = "bravais-styles";
 

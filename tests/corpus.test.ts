@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { buildScene, expandStructure, readCif } from "../src/index";
+import { buildScene, expandStructure, readCif } from "../src/index.js";
 
 /** Set BRAVAIS_CIF_CORPUS to a directory to read every CIF below it. */
 const corpus = process.env.BRAVAIS_CIF_CORPUS;

@@ -4,10 +4,10 @@ import {
   parseCif,
   parseCifStructure,
   parseSymmetryOperator,
-} from "../src/index";
-import { parseCifNumber } from "../src/cif/parser";
-import { tokenizeCif } from "../src/cif/tokenizer";
-import { fixture } from "./helpers";
+} from "../src/index.js";
+import { parseCifNumber } from "../src/cif/parser.js";
+import { tokenizeCif } from "../src/cif/tokenizer.js";
+import { fixture } from "./helpers.js";
 
 describe("tokenizer", () => {
   it("keeps apostrophes inside quoted strings and drops comments", () => {

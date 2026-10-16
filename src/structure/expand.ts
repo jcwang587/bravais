@@ -1,11 +1,11 @@
-import { sameFractionalPosition } from "../cif/structure";
-import { applyOperation } from "../cif/symmetry-operators";
+import { sameFractionalPosition } from "../cif/structure.js";
+import { applyOperation } from "../cif/symmetry-operators.js";
 import {
   IDENTITY_OPERATION,
   type Site,
   type Structure,
   type Vec3,
-} from "./types";
+} from "./types.js";
 
 /** Generated equivalents this close in fractional coordinates are one atom. */
 const EQUIVALENT_TOLERANCE = 1e-3;

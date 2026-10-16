@@ -25,35 +25,38 @@
   ],
   "type": "module",
   "main": "./dist/bravais.js",
-  "types": "./dist/bravais.d.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/bravais.d.ts",
-      "import": "./dist/bravais.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/bravais.js",
+      "default": "./dist/bravais.js"
     }
   },
   "files": [
     "dist",
-    "!dist/*.map",
-    "THIRD_PARTY_NOTICES.md"
+    "CHANGELOG.md"
   ],
   "scripts": {
     "demo": "vite --open /examples/",
-    "build": "vite build && tsc -p tsconfig.build.json && node scripts/entry-types.mjs",
+    "build": "vite build && tsc -p tsconfig.build.json",
     "dev": "vite build --watch",
     "test": "vitest run",
     "check": "tsc -p tsconfig.json && prettier --check .",
+    "check:package": "publint --strict && attw --pack . --profile esm-only",
     "format": "prettier --write .",
-    "prepublishOnly": "npm run check && npm test && npm run build"
+    "prepublishOnly": "npm run check && npm test && npm run build && npm run check:package"
   },
   "peerDependencies": {
     "three": ">=0.186.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@spglib/moyo-wasm": "^0.21.0",
     "@types/node": "^26.6.5",
     "@types/three": "^0.186.0",
     "prettier": "3.9.10",
+    "publint": "0.3.25",
     "three": "^0.186.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",

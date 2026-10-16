@@ -1,5 +1,5 @@
-import { elementFromCifSymbol } from "../structure/elements";
-import { latticeFromParameters } from "../structure/lattice";
+import { elementFromCifSymbol } from "../structure/elements.js";
+import { latticeFromParameters } from "../structure/lattice.js";
 import type {
   Lattice,
   Site,
@@ -7,21 +7,17 @@ import type {
   Species,
   SymmetryOperation,
   Vec3,
-} from "../structure/types";
+} from "../structure/types.js";
 import {
   isCifPlaceholder,
   loopColumn,
   parseCifNumber,
   type CifBlock,
-} from "./parser";
-import { parseSymmetryOperator } from "./symmetry-operators";
+} from "./parser.js";
+import { CifStructureError } from "./errors.js";
+import { parseSymmetryOperator } from "./symmetry-operators.js";
 
-export class CifStructureError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "CifStructureError";
-  }
-}
+export { CifStructureError };
 
 /** Rows this close in fractional coordinates describe one site. */
 const SITE_MERGE_TOLERANCE = 1e-4;

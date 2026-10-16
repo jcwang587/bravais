@@ -1,6 +1,6 @@
 import vestaCutoffs from "../data/vesta-cutoffs.json";
-import { distance } from "./lattice";
-import type { Vec3 } from "./types";
+import { distance } from "./lattice.js";
+import type { Vec3 } from "./types.js";
 
 const CUTOFFS = vestaCutoffs.pairs as Record<string, number>;
 const LONGEST_CUTOFF = Math.max(...Object.values(CUTOFFS));
@@ -12,9 +12,13 @@ export interface BondedAtom {
   position: Vec3;
 }
 
+/** A bond between two entries of `StructureScene.atoms`. */
 export interface Bond {
+  /** Index of one atom. */
   start: number;
+  /** Index of the other. */
   end: number;
+  /** Distance between them in ångström. */
   length: number;
 }
 

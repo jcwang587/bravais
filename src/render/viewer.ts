@@ -19,17 +19,18 @@ import {
   fitZoom,
   quaternionTuple,
   standardQuaternion,
-  type ViewState,
-} from "./camera";
-import { AxesGizmo } from "./gizmo";
-import { ElementLegend, ensureViewerStyles } from "./legend";
+} from "./camera.js";
+import { AxesGizmo } from "./gizmo.js";
+import { ElementLegend, ensureViewerStyles } from "./legend.js";
 import {
   AMBIENT_LIGHT_INTENSITY,
   BACKGROUND_COLOR,
   HEADLIGHT_INTENSITY,
   HEADLIGHT_OFFSET,
-} from "./materials";
-import { createSceneModel, type SceneLayer, type SceneModel } from "./model";
+} from "./materials.js";
+import { createSceneModel, type SceneModel } from "./model.js";
+import type { ViewState } from "./view-state.js";
+import type { SceneLayer } from "../scene/build.js";
 
 export interface ViewerOptions {
   /** Show the element legend. Default true. */
@@ -39,20 +40,27 @@ export interface ViewerOptions {
 }
 
 export interface Viewer {
-  /** Replace what is drawn. The view resets to the standard orientation unless `view` is given. */
+  /**
+   * Replace what is drawn with scenes from `buildScene`, usually of expanded
+   * structures. The view resets to the standard orientation unless `view`
+   * is given.
+   */
   setLayers(layers: SceneLayer[], view?: ViewState | null): void;
   /** Remove everything drawn. */
   clear(): void;
   /** The current pose, or null while nothing is loaded. */
   getView(): ViewState | null;
+  /** Restore a pose from `getView`, of this or another viewer. */
   setView(view: ViewState): void;
   /** Back to the standard orientation, fitted to the viewport. */
   resetView(): void;
   /** Refit to the element's size; call after layout changes the viewer's box. */
   resize(): void;
+  /** Draw a frame now. */
   render(): void;
   /** Called after the user moves the camera. Returns the unsubscribe function. */
   onInteraction(listener: () => void): () => void;
+  /** Take the viewer out of its container and release its WebGL resources. */
   dispose(): void;
 }
 
@@ -115,7 +123,12 @@ function depthFog(
   return new Fog(BACKGROUND_COLOR, near, far);
 }
 
-/** Mount a crystal viewer in `container`. */
+/**
+ * Mount a crystal viewer in `container`. The viewer fills the container and
+ * follows its size, so the container needs a height of its own. The call
+ * gives the container the class `bravais-viewer` and adds, once per
+ * document, a `<style id="bravais-styles">` for the overlays.
+ */
 export function createViewer(
   container: HTMLElement,
   options: ViewerOptions = {},

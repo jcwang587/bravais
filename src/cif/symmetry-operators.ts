@@ -1,4 +1,5 @@
-import type { SymmetryOperation, Vec3 } from "../structure/types";
+import type { SymmetryOperation, Vec3 } from "../structure/types.js";
+import { CifStructureError } from "./errors.js";
 
 const AXES = ["x", "y", "z"] as const;
 
@@ -10,12 +11,11 @@ function parseCoefficient(text: string): number {
     return -1;
   }
   const fraction = text.match(/^([+-]?\d+)\/(\d+)$/);
-  if (fraction) {
-    return Number(fraction[1]) / Number(fraction[2]);
-  }
-  const value = Number(text);
+  const value = fraction
+    ? Number(fraction[1]) / Number(fraction[2])
+    : Number(text);
   if (!Number.isFinite(value)) {
-    throw new Error(
+    throw new CifStructureError(
       `Cannot read the number ${JSON.stringify(text)} in a symmetry operator.`,
     );
   }
@@ -38,7 +38,7 @@ export function parseSymmetryOperator(text: string): SymmetryOperation {
     .split(",")
     .map((part) => part.toLowerCase().replace(/[^xyz0-9./+-]/g, ""));
   if (components.length !== 3) {
-    throw new Error(
+    throw new CifStructureError(
       `A symmetry operator needs three components: ${JSON.stringify(text)}.`,
     );
   }
@@ -48,7 +48,7 @@ export function parseSymmetryOperator(text: string): SymmetryOperation {
   for (const component of components) {
     const terms = component.match(/[+-]?[^+-]+/g);
     if (!terms || terms.join("") !== component) {
-      throw new Error(
+      throw new CifStructureError(
         `Cannot read the symmetry operator ${JSON.stringify(text)}.`,
       );
     }

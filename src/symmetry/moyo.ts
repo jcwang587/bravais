@@ -3,13 +3,13 @@ import initMoyo, {
   operations_from_number,
   space_group_type,
   type MoyoHallSymbolEntry,
-  type MoyoOperation,
   type MoyoSetting,
 } from "@spglib/moyo-wasm";
 import moyoWasmBase64 from "virtual:moyo-wasm";
 
-import type { SpaceGroupInfo, SymmetryOperation } from "../structure/types";
+import type { SpaceGroupInfo, SymmetryOperation } from "../structure/types.js";
 
+/** The named space group is not in the symmetry table. */
 export class SpaceGroupLookupError extends Error {
   constructor(message: string) {
     super(message);
@@ -29,18 +29,52 @@ function decodeBase64(base64: string): Uint8Array {
   return bytes;
 }
 
-/** Instantiate the bundled moyo WebAssembly module once. */
+/**
+ * Instantiate the bundled moyo WebAssembly module once, ahead of first use.
+ * Every function that needs moyo calls this itself, so calling it is only a
+ * way to pay the start-up cost early. A failed instantiation is not cached:
+ * the next call tries again.
+ */
 export function ensureMoyo(): Promise<void> {
   if (!initialization) {
     initialization = initMoyo({
       module_or_path: decodeBase64(moyoWasmBase64),
-    }).then(() => undefined);
+    }).then(
+      () => undefined,
+      (error: unknown) => {
+        initialization = null;
+        throw error;
+      },
+    );
   }
   return initialization;
 }
 
+/**
+ * An operation as moyo returns it. Declared here rather than imported so the
+ * published declarations do not depend on @spglib/moyo-wasm, which is bundled
+ * at build time and not installed by consumers.
+ */
+export interface MoyoOperationLike {
+  /** Nine integers, column-major. */
+  rotation: readonly [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+  translation: readonly [number, number, number];
+}
+
 /** moyo stores matrices column-major: element (i, j) sits at i + 3j. */
-export function fromMoyoOperation(operation: MoyoOperation): SymmetryOperation {
+export function fromMoyoOperation(
+  operation: MoyoOperationLike,
+): SymmetryOperation {
   const r = operation.rotation;
   return {
     rotation: [r[0], r[3], r[6], r[1], r[4], r[7], r[2], r[5], r[8]],
@@ -195,7 +229,12 @@ export async function operationSettings(
   ];
 }
 
-/** The operations of the first setting `operationSettings` gives. */
+/**
+ * The operations of a space group named by Hall symbol, Hermann-Mauguin
+ * symbol or number: those of the setting a suffix such as `:H` selects,
+ * otherwise of the standard setting. Throws `SpaceGroupLookupError` when
+ * the table has no such group.
+ */
 export async function operationsForSpaceGroup(
   info: SpaceGroupInfo,
 ): Promise<SymmetryOperation[]> {

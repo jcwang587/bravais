@@ -1,16 +1,21 @@
-import { findBonds, type Bond } from "../structure/bonds";
-import { chemicalElement } from "../structure/elements";
-import { periodicAtoms } from "../structure/images";
-import { fractionalToCartesian } from "../structure/lattice";
-import type { Mat3, Species, Structure, Vec3 } from "../structure/types";
+import { findBonds, type Bond } from "../structure/bonds.js";
+import { chemicalElement } from "../structure/elements.js";
+import { periodicAtoms } from "../structure/images.js";
+import { fractionalToCartesian } from "../structure/lattice.js";
+import type { Mat3, Species, Structure, Vec3 } from "../structure/types.js";
 
 export interface SceneAtom {
+  /** Index into `Structure.sites` of the site this atom belongs to. */
   siteIndex: number;
   /** The species with the largest occupancy; what colours the atom. */
   element: string;
+  /** Every species on the site, by descending occupancy. */
   species: Species[];
+  /** Cartesian position in ångström. */
   position: Vec3;
+  /** Fractional position; image atoms lie on the far faces, edges or corners. */
   fractional: Vec3;
+  /** True for a boundary site repeated on the opposite face, edge or corner. */
   isImage: boolean;
 }
 
@@ -18,9 +23,17 @@ export interface StructureScene {
   /** Cell row vectors in Cartesian ångström. */
   cell: Mat3;
   atoms: SceneAtom[];
+  /** Bonds between entries of `atoms`. */
   bonds: Bond[];
   /** Elements present, in order of first appearance, deuterium as hydrogen. */
   elements: string[];
+}
+
+/** One structure drawn in a viewer; several overlay, each with its own opacity. */
+export interface SceneLayer {
+  scene: StructureScene;
+  /** 1 draws the layer solid; a lower value draws it translucent over the others. Default 1. */
+  opacity?: number;
 }
 
 export interface BuildSceneOptions {
@@ -42,7 +55,11 @@ export function structureElements(structure: Structure): string[] {
   return elements;
 }
 
-/** Atoms, bonds and cell of a structure as the renderer draws them. */
+/**
+ * Atoms, bonds and cell of a structure as the renderer draws them. The sites
+ * are drawn as listed and `operations` are not applied: pass
+ * `expandStructure(structure)` to draw the full cell.
+ */
 export function buildScene(
   structure: Structure,
   options: BuildSceneOptions = {},

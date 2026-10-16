@@ -6,7 +6,9 @@ export interface CifToken {
   line: number;
 }
 
+/** The text is not CIF the tokenizer and parser accept. */
 export class CifSyntaxError extends Error {
+  /** 1-based line of the problem. */
   readonly line: number;
 
   constructor(message: string, line: number) {

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.4 - 2026-10-19
+
+- Switching structures is faster: the viewer keeps its compiled shaders
+  instead of compiling them again, builds the axes once instead of leaking a
+  new set on every switch, and resizes the canvas only when its size changes.
+- The README, the package description and the doc comments are shorter and
+  plainer.
+
 ## 0.1.3 - 2026-10-19
 
 - A layer at opacity 0 is no longer drawn but still frames the view, so a

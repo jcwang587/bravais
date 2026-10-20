@@ -28,6 +28,25 @@ export const VACANCY_FLAG = 2;
 const TWO_PI = "6.28318530718";
 
 /**
+ * Insert code at includes of a three.js built-in shader, each `[include,
+ * code]` replacing the include. A three.js release that renames or drops
+ * one fails here by name, instead of drawing flat squares.
+ */
+function patchShader(
+  shader: string,
+  patches: [include: string, code: string][],
+): string {
+  return patches.reduce((source, [include, code]) => {
+    if (!source.includes(include)) {
+      throw new Error(
+        `bravais cannot draw with this three.js: its shader has no ${include}.`,
+      );
+    }
+    return source.replace(include, code);
+  }, shader);
+}
+
+/**
  * Occupancy sectors live in a texture: each site owns a run of texels, each
  * holding the colour of one sector and the angle fraction where it begins.
  * The first sector takes the instance colour; the rest, and the vacancy,
@@ -45,8 +64,8 @@ export const SECTOR_SITES_PER_ROW = 256;
  * the view z axis and the depth is linear in view z.
  */
 function atomVertexShader(shader: string): string {
-  return shader
-    .replace(
+  return patchShader(shader, [
+    [
       "#include <common>",
       `#include <common>
 flat varying int vSectorSite;
@@ -54,8 +73,8 @@ flat varying vec3 vSphereCenter;
 flat varying float vSphereRadius;
 flat varying vec2 vDepthCoefficients;
 varying vec3 vSpherePoint;`,
-    )
-    .replace(
+    ],
+    [
       "#include <project_vertex>",
       `mat4 sphereMatrix = modelViewMatrix * instanceMatrix;
 vSphereCenter = sphereMatrix[3].xyz;
@@ -65,12 +84,13 @@ vDepthCoefficients = vec2(projectionMatrix[2][2], projectionMatrix[3][2]);
 vSectorSite = gl_InstanceID;
 vec4 mvPosition = vec4(vSpherePoint, 1.0);
 gl_Position = projectionMatrix * mvPosition;`,
-    );
+    ],
+  ]);
 }
 
 function atomFragmentShader(shader: string): string {
-  return shader
-    .replace(
+  return patchShader(shader, [
+    [
       "#include <common>",
       `#include <common>
 uniform sampler2D sectorTexture;
@@ -80,8 +100,8 @@ flat varying vec3 vSphereCenter;
 flat varying float vSphereRadius;
 flat varying vec2 vDepthCoefficients;
 varying vec3 vSpherePoint;`,
-    )
-    .replace(
+    ],
+    [
       "#include <clipping_planes_fragment>",
       `// Where the view ray meets the sphere. The outline is smoothed over one
 // pixel through the alpha: sample coverage, or blending in a see-through layer.
@@ -102,8 +122,8 @@ vec3 sphereNormal = vec3(sphereOffset, sphereHeight) / vSphereRadius;
 float sphereZ = vSphereCenter.z + sphereHeight;
 gl_FragDepth = (vDepthCoefficients.x * sphereZ + vDepthCoefficients.y) * 0.5 + 0.5;
 #include <clipping_planes_fragment>`,
-    )
-    .replace(
+    ],
+    [
       "#include <color_fragment>",
       `#include <color_fragment>
 {
@@ -127,13 +147,14 @@ gl_FragDepth = (vDepthCoefficients.x * sphereZ + vDepthCoefficients.y) * 0.5 + 0
   diffuseColor.rgb = diffuse * sectorColor;
   diffuseColor.a *= sectorOpacity * sphereCoverage;
 }`,
-    )
-    .replace(
+    ],
+    [
       "#include <normal_fragment_begin>",
       `#include <normal_fragment_begin>
 normal = sphereNormal;
 nonPerturbedNormal = normal;`,
-    );
+    ],
+  ]);
 }
 
 /**
@@ -175,8 +196,8 @@ export function createAtomMaterial(
  * crossing with another sphere are then exact at any zoom.
  */
 function bondVertexShader(shader: string): string {
-  return shader
-    .replace(
+  return patchShader(shader, [
+    [
       "#include <common>",
       `#include <common>
 uniform float capRadius;
@@ -187,8 +208,8 @@ flat varying float vTubeRadius;
 flat varying float vTubeHalfLength;
 flat varying vec2 vDepthCoefficients;
 varying vec3 vBoxPoint;`,
-    )
-    .replace(
+    ],
+    [
       "#include <project_vertex>",
       `mat4 tubeMatrix = modelViewMatrix * instanceMatrix;
 float tubeLength = max(length(tubeMatrix[1].xyz), 1e-6);
@@ -202,12 +223,13 @@ vDepthCoefficients = vec2(projectionMatrix[2][2], projectionMatrix[3][2]);
 vec4 mvPosition = tubeMatrix * vec4(position, 1.0);
 vBoxPoint = mvPosition.xyz;
 gl_Position = projectionMatrix * mvPosition;`,
-    );
+    ],
+  ]);
 }
 
 function bondFragmentShader(shader: string): string {
-  return shader
-    .replace(
+  return patchShader(shader, [
+    [
       "#include <common>",
       `#include <common>
 uniform float capRadius;
@@ -218,8 +240,8 @@ flat varying float vTubeRadius;
 flat varying float vTubeHalfLength;
 flat varying vec2 vDepthCoefficients;
 varying vec3 vBoxPoint;`,
-    )
-    .replace(
+    ],
+    [
       "#include <clipping_planes_fragment>",
       `// The view ray through this pixel runs down view z. The tube's surface is
 // the nearest of: the wall outside the atom's sphere, the sphere's far side
@@ -289,18 +311,19 @@ if (tubeHitZ < -1e29) {
 }
 gl_FragDepth = (vDepthCoefficients.x * tubeHitZ + vDepthCoefficients.y) * 0.5 + 0.5;
 #include <clipping_planes_fragment>`,
-    )
-    .replace(
+    ],
+    [
       "#include <color_fragment>",
       `#include <color_fragment>
 diffuseColor.a *= tubeCoverage;`,
-    )
-    .replace(
+    ],
+    [
       "#include <normal_fragment_begin>",
       `#include <normal_fragment_begin>
 normal = tubeNormal;
 nonPerturbedNormal = normal;`,
-    );
+    ],
+  ]);
 }
 
 /**

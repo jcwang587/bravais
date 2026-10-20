@@ -1,5 +1,5 @@
 import { elementFromCifSymbol } from "../structure/elements.js";
-import { samePosition, wrap } from "../structure/fractional.js";
+import { PositionIndex, wrap } from "../structure/fractional.js";
 import { latticeFromParameters } from "../structure/lattice.js";
 import type {
   Lattice,
@@ -107,6 +107,7 @@ function readSites(block: CifBlock): Site[] {
   const typeSymbols = loopColumn(loop, "_atom_site_type_symbol");
   const occupancies = loopColumn(loop, "_atom_site_occupancy");
   const sites: Site[] = [];
+  const positions = new PositionIndex(SITE_MERGE_TOLERANCE);
 
   for (let row = 0; row < loop.rows.length; row += 1) {
     const x = parseCifNumber(xs[row]);
@@ -128,12 +129,12 @@ function readSites(block: CifBlock): Site[] {
     }
     const occupancy = parseCifNumber(occupancies?.[row]) ?? 1;
     const fractional: Vec3 = [wrap(x), wrap(y), wrap(z)];
-    const shared = sites.find((site) =>
-      samePosition(site.fractional, fractional, SITE_MERGE_TOLERANCE),
-    );
-    if (shared) {
-      mergeSpecies(shared.species, element, occupancy);
+    // The first site listed at this position, if any.
+    const [shared] = positions.near(fractional);
+    if (shared !== undefined) {
+      mergeSpecies(sites[shared]!.species, element, occupancy);
     } else {
+      positions.add(fractional);
       sites.push({ label, species: [{ element, occupancy }], fractional });
     }
   }

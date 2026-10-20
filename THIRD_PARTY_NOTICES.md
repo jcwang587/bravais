@@ -1,9 +1,17 @@
 # Third-party notices
 
 bravais is MIT licensed (see [LICENSE](LICENSE)). It ships material from the
-three MIT-licensed projects below, bundled into `dist/bravais.js`. Each is
-reproduced with its copyright notice, and the MIT permission notice at the
-end applies to all three.
+four MIT-licensed projects below, bundled into `dist/`. Each is reproduced
+with its copyright notice, and the MIT permission notice at the end applies
+to all four.
+
+## three.js
+
+The TrackballControls addon of [three.js](https://github.com/mrdoob/three.js)
+is bundled, used under its MIT licence. three.js itself is a peer dependency
+and is not bundled.
+
+Copyright © 2010-2026 three.js authors
 
 ## moyo
 

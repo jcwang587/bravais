@@ -24,6 +24,7 @@
     "materials-science"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/bravais.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
@@ -31,7 +32,8 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/bravais.js",
       "default": "./dist/bravais.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",

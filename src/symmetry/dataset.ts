@@ -1,10 +1,7 @@
-import {
-  analyze_cell,
-  hall_symbol_entry,
-  space_group_type,
-  type MoyoCell,
-  type MoyoDataset,
-  type MoyoHallSymbolEntry,
+import type {
+  MoyoCell,
+  MoyoDataset,
+  MoyoHallSymbolEntry,
 } from "@spglib/moyo-wasm";
 
 import { expandStructure } from "../structure/expand.js";
@@ -19,6 +16,7 @@ import {
   type SymmetryOperation,
 } from "../structure/types.js";
 import { ensureMoyo, fromMoyoOperation } from "./moyo.js";
+import { moyo } from "./moyo-loader.js";
 
 /**
  * Distance tolerance of the symmetry search, in ångström: pymatgen's
@@ -140,6 +138,7 @@ export async function symmetryDataset(
   options: SymmetryOptions = {},
 ): Promise<SymmetryDataset> {
   await ensureMoyo();
+  const { analyze_cell, hall_symbol_entry, space_group_type } = moyo();
   const expanded = expandStructure(structure);
   const { numbers, speciesByLabel } = labelSpecies(expanded.sites);
   const [a, b, c] = expanded.lattice.vectors;

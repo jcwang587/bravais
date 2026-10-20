@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "three";
+import { Quaternion } from "three";
 
 import {
   applyPixelFrustum,
@@ -72,8 +72,6 @@ export function createThumbnailRenderer(): ThumbnailRenderer {
       const distance = cameraDistance(model.span);
       const pose = view ?? standardView(model.cell);
       applyViewState(camera, pose, distance, model.span);
-      const target = new Vector3(...pose.target);
-      camera.position.add(target);
       camera.zoom =
         fitZoom(
           model.bounds,

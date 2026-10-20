@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.3 - 2026-10-19
+
+- A layer at opacity 0 is no longer drawn but still frames the view, so a
+  viewer switching between two states of a structure keeps one centre and
+  scale.
+- moyo is a separate file, `dist/moyo-wasm.js`, loaded the first time a
+  structure needs it, so `dist/bravais.js` shrinks from 1.1 MB to 87 kB. A
+  CIF with an operator loop never loads it.
+- Large structures read, expand and bond in about linear time: a P1 cell of
+  27,000 atoms reads in 0.1 s instead of 5.6 s and expands in 0.03 s
+  instead of 12 s.
+- Bonds are listed by `start`, then `end`.
+- `latticeFromParameters` and `latticeFromVectors` are exported, to build a
+  structure from cell parameters or vectors.
+- A thumbnail centres on its view's target when the target is not the
+  origin.
+- A three.js release whose shaders lack a part bravais extends fails with an
+  error naming it, instead of drawing flat squares.
+- `package.json` marks the package free of side effects and exports itself.
+- The third-party notices credit three.js for the bundled TrackballControls
+  addon.
+
 ## 0.1.2 - 2026-10-16
 
 - README revised.

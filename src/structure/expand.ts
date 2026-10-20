@@ -1,7 +1,7 @@
 import {
   EQUIVALENT_TOLERANCE,
+  PositionIndex,
   applyOperation,
-  samePosition,
   wrapVector,
 } from "./fractional.js";
 import { IDENTITY_OPERATION, type Site, type Structure } from "./types.js";
@@ -12,13 +12,12 @@ import { IDENTITY_OPERATION, type Site, type Structure } from "./types.js";
  */
 export function expandStructure(structure: Structure): Structure {
   const sites: Site[] = [];
+  const kept = new PositionIndex(EQUIVALENT_TOLERANCE);
   for (const site of structure.sites) {
     for (const operation of structure.operations) {
       const fractional = wrapVector(applyOperation(operation, site.fractional));
-      const duplicate = sites.some((existing) =>
-        samePosition(existing.fractional, fractional, EQUIVALENT_TOLERANCE),
-      );
-      if (!duplicate) {
+      if (kept.near(fractional).length === 0) {
+        kept.add(fractional);
         sites.push({ label: site.label, species: site.species, fractional });
       }
     }

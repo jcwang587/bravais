@@ -1,12 +1,7 @@
-import initMoyo, {
-  hall_symbol_entries_from_number,
-  operations_from_number,
-  space_group_type,
-  type MoyoHallSymbolEntry,
-} from "@spglib/moyo-wasm";
-import moyoWasmBase64 from "virtual:moyo-wasm";
+import type { MoyoHallSymbolEntry } from "@spglib/moyo-wasm";
 
 import type { SpaceGroupInfo, SymmetryOperation } from "../structure/types.js";
+import { loadMoyo, moyo } from "./moyo-loader.js";
 
 /** The named space group is not in the symmetry table. */
 export class SpaceGroupLookupError extends Error {
@@ -16,37 +11,17 @@ export class SpaceGroupLookupError extends Error {
   }
 }
 
-let initialization: Promise<void> | null = null;
 let hallEntries: MoyoHallSymbolEntry[] | null = null;
 
-function decodeBase64(base64: string): Uint8Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-  return bytes;
-}
-
 /**
- * Instantiate the bundled moyo WebAssembly module once, ahead of first use.
- * Every function that needs moyo calls this itself, so calling it is only a
- * way to pay the start-up cost early. A failed instantiation is not cached:
- * the next call tries again.
+ * Load the bundled moyo WebAssembly module, once. It is a separate file of
+ * the package that nothing loads until a structure needs it. Every function
+ * that needs moyo calls this itself, so calling it is only a way to pay the
+ * start-up cost early. A failed load is not cached: the next call tries
+ * again.
  */
 export function ensureMoyo(): Promise<void> {
-  if (!initialization) {
-    initialization = initMoyo({
-      module_or_path: decodeBase64(moyoWasmBase64),
-    }).then(
-      () => undefined,
-      (error: unknown) => {
-        initialization = null;
-        throw error;
-      },
-    );
-  }
-  return initialization;
+  return loadMoyo();
 }
 
 /**
@@ -89,7 +64,7 @@ function allHallEntries(): MoyoHallSymbolEntry[] {
   if (!hallEntries) {
     hallEntries = [];
     for (let number = 1; number <= 230; number += 1) {
-      hallEntries.push(...hall_symbol_entries_from_number(number));
+      hallEntries.push(...moyo().hall_symbol_entries_from_number(number));
     }
   }
   return hallEntries;
@@ -130,7 +105,7 @@ function preferStandard(entries: MoyoHallSymbolEntry[]): MoyoHallSymbolEntry[] {
   if (!first) {
     return entries;
   }
-  const standard = space_group_type(first.number).hall_number;
+  const standard = moyo().space_group_type(first.number).hall_number;
   return [...entries].sort((left, right) => {
     return (
       Number(right.hall_number === standard) -
@@ -195,6 +170,7 @@ export async function operationSettings(
   info: SpaceGroupInfo,
 ): Promise<OperationSetting[]> {
   await ensureMoyo();
+  const { operations_from_number } = moyo();
   if (info.hallSymbol || info.symbol) {
     const entries = entriesForSymbol(info);
     if (entries.length === 0) {

@@ -14,10 +14,19 @@ npm install bravais three
 
 ## Use
 
+Add a container with a height:
+
+```html
+<div id="viewer" style="height: 480px"></div>
+```
+
+Then read a CIF and visualize it:
+
 ```js
 import { buildScene, createViewer, expandStructure, readCif } from "bravais";
 
-const scene = buildScene(expandStructure(await readCif(cifText)));
+const response = await fetch("https://unpkg.com/bravais/examples/CoO.cif");
+const scene = buildScene(expandStructure(await readCif(await response.text())));
 createViewer(document.getElementById("viewer")).setLayers([{ scene }]);
 ```
 

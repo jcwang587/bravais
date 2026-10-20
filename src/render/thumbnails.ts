@@ -7,7 +7,11 @@ import {
   fitZoom,
   standardView,
 } from "./camera.js";
-import { createSceneModel, type SceneModel } from "./model.js";
+import {
+  createSceneModel,
+  createShaderWarmup,
+  type SceneModel,
+} from "./model.js";
 import { createStage } from "./stage.js";
 import type { ViewState } from "./view-state.js";
 import type { SceneLayer } from "../scene/build.js";
@@ -41,6 +45,14 @@ interface CachedModel {
 export function createThumbnailRenderer(): ThumbnailRenderer {
   const { renderer, scene, camera, updateHeadlight } = createStage();
   const cache = new Map<string, CachedModel>();
+
+  // Compile every shader now, all at once, so the driver can compile them in
+  // parallel instead of one by one at the first thumbnail.
+  const warmup = createShaderWarmup();
+  scene.add(warmup.group);
+  renderer.compile(scene, camera);
+  scene.remove(warmup.group);
+  warmup.dispose();
 
   function modelFor(key: string, layers: SceneLayer[]): SceneModel {
     const cached = cache.get(key);

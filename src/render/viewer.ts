@@ -13,7 +13,11 @@ import {
 import { AxesGizmo } from "./gizmo.js";
 import { ElementLegend, ensureViewerStyles } from "./legend.js";
 import { BACKGROUND_COLOR } from "./materials.js";
-import { createSceneModel, type SceneModel } from "./model.js";
+import {
+  createSceneModel,
+  createShaderWarmup,
+  type SceneModel,
+} from "./model.js";
 import { createStage } from "./stage.js";
 import type { ViewState } from "./view-state.js";
 import type { SceneLayer } from "../scene/build.js";
@@ -41,7 +45,7 @@ export interface Viewer {
   resetView(): void;
   /** Fit the canvas to the container again; the viewer does this itself when the container resizes. */
   resize(): void;
-  /** Draw a frame now. */
+  /** Draw a frame now, or as soon as the shaders finish compiling. */
   render(): void;
   /** Call `listener` when the user rotates or zooms. Returns a function that removes it. */
   onInteraction(listener: () => void): () => void;
@@ -111,7 +115,9 @@ function depthFog(
 /**
  * Create a viewer inside `container`. It fills the container and follows
  * its size, so give the container a height. Adds the class `bravais-viewer`
- * to the container and one small stylesheet to the page.
+ * to the container and one small stylesheet to the page. Its shaders start
+ * compiling in the background at once, and drawing waits until they are
+ * ready.
  */
 export function createViewer(
   container: HTMLElement,
@@ -150,6 +156,8 @@ export function createViewer(
   controls.mouseButtons.RIGHT = null;
 
   let model: SceneModel | null = null;
+  /** Shaders still compiling in the background; drawing waits for them. */
+  let compiling: Promise<unknown> | null = null;
   let distance = 4;
   let fitted = 1;
   let width = 1;
@@ -177,6 +185,9 @@ export function createViewer(
   }
 
   function render(): void {
+    if (compiling) {
+      return;
+    }
     updateHeadlight();
     renderer.setViewport(0, 0, width, height);
     renderer.render(scene, camera);
@@ -295,6 +306,29 @@ export function createViewer(
   observer?.observe(container);
   measure();
 
+  // Compile every shader now, all at once, so the driver can compile them in
+  // parallel while the page loads its structure, instead of one by one at the
+  // first draw with the page frozen.
+  const warmup = createShaderWarmup();
+  scene.add(warmup.group);
+  // Structures are drawn in depth fog, which is part of their shaders.
+  scene.fog = new Fog(BACKGROUND_COLOR, 1, 2);
+  const warming = Promise.all([
+    renderer.compileAsync(scene, camera),
+    gizmo && renderer.compileAsync(gizmo.scene, gizmo.camera),
+  ]);
+  scene.remove(warmup.group);
+  scene.fog = null;
+  warmup.dispose();
+  compiling = warming;
+  const warmed = () => {
+    if (compiling === warming) {
+      compiling = null;
+      render();
+    }
+  };
+  warming.then(warmed, warmed);
+
   function applyView(view: ViewState): void {
     if (!model) {
       return;
@@ -365,6 +399,7 @@ export function createViewer(
     },
     dispose() {
       viewer.clear();
+      compiling = null;
       dragging = false;
       observer?.disconnect();
       controls.dispose();

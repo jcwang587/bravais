@@ -1,8 +1,17 @@
-import { InstancedMesh, LineSegments, type Material } from "three";
+import {
+  InstancedMesh,
+  LineSegments,
+  type Material,
+  type Object3D,
+} from "three";
 import { describe, expect, it } from "vitest";
 
 import { buildScene, expandStructure, readCif } from "../src/index.js";
-import { createSceneModel } from "../src/render/model.js";
+import { createSceneModel, createShaderWarmup } from "../src/render/model.js";
+import {
+  elementColorAssignments,
+  resetElementColors,
+} from "../src/render/palette.js";
 import { latticeFromParameters } from "../src/structure/lattice.js";
 import { fixture } from "./helpers.js";
 
@@ -87,5 +96,43 @@ describe("scene model", () => {
       "geometry",
       "texture",
     ]);
+  });
+});
+
+describe("shader warm-up", () => {
+  /** What decides an object's shader, as far as the model sets it. */
+  function shaderKey(object: Object3D): string {
+    const mesh = object as InstancedMesh | LineSegments;
+    const material = mesh.material as Material;
+    return [
+      mesh.type,
+      material.type,
+      material.customProgramCacheKey(),
+      material.transparent,
+      material.alphaToCoverage,
+      mesh instanceof InstancedMesh && mesh.instanceColor !== null,
+    ].join(" ");
+  }
+
+  it("covers every object a structure is drawn with", async () => {
+    const warmed = new Set(createShaderWarmup().group.children.map(shaderKey));
+    const coo = await sceneOf("CoO-9008618.cif");
+    const models = [
+      createSceneModel([{ scene: coo }]),
+      // Vacant sector shares make the atoms see-through.
+      createSceneModel([{ scene: await sceneOf("faujasite-1507214.cif") }]),
+      createSceneModel([{ scene: coo, opacity: 0.4 }]),
+    ];
+    for (const model of models) {
+      for (const object of model.group.children) {
+        expect(warmed).toContain(shaderKey(object));
+      }
+    }
+  });
+
+  it("gives no element a colour", () => {
+    resetElementColors();
+    createShaderWarmup();
+    expect(elementColorAssignments()).toEqual([]);
   });
 });

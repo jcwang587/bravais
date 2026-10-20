@@ -1,9 +1,9 @@
 # Third-party notices
 
 bravais is MIT licensed (see [LICENSE](LICENSE)). It ships material from the
-four MIT-licensed projects below, bundled into `dist/`. Each is reproduced
-with its copyright notice, and the MIT permission notice at the end applies
-to all four.
+four MIT-licensed projects below, bundled into `dist/`, and one example
+structure file. Each project is reproduced with its copyright notice, and the
+MIT permission notice at the end applies to all four.
 
 ## three.js
 
@@ -37,6 +37,14 @@ The element colour table (`src/data/element-colors.json`) is
 version of VESTA's element colours.
 
 Copyright (c) 2026 Feitong Song
+
+## Example structure
+
+`examples/CoO.cif`, the structure the README example loads, is entry 9008618
+of the [Crystallography Open Database](https://www.crystallography.net/cod/),
+shipped unchanged. Its header asks that the source of the data be credited:
+R. W. G. Wyckoff, _Crystal Structures_, vol. 1, 2nd ed., Interscience
+Publishers, New York, 1963.
 
 ## MIT permission notice
 

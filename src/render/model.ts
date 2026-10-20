@@ -179,7 +179,11 @@ function colorLookup(): (element: string) => Color {
   };
 }
 
-function createAtoms(atoms: SceneAtom[], opacity: number): InstancedMesh {
+function createAtoms(
+  atoms: SceneAtom[],
+  opacity: number,
+  colorOf: (element: string) => Color = colorLookup(),
+): InstancedMesh {
   // One camera-facing quad per atom; the material draws the sphere on it.
   const geometry = new PlaneGeometry(2, 2);
   const sectors = createSectorTexture(atoms);
@@ -189,7 +193,6 @@ function createAtoms(atoms: SceneAtom[], opacity: number): InstancedMesh {
     atoms.length,
   );
   const matrix = new Matrix4();
-  const colorOf = colorLookup();
   atoms.forEach((atom, index) => {
     matrix.makeScale(ATOM_RADIUS, ATOM_RADIUS, ATOM_RADIUS);
     matrix.setPosition(atom.position[0], atom.position[1], atom.position[2]);
@@ -212,6 +215,7 @@ function createAtoms(atoms: SceneAtom[], opacity: number): InstancedMesh {
 function createBonds(
   scene: StructureScene,
   opacity: number,
+  colorOf: (element: string) => Color = colorLookup(),
 ): InstancedMesh | null {
   if (scene.bonds.length === 0) {
     return null;
@@ -227,7 +231,6 @@ function createBonds(
   const end = new Vector3();
   const direction = new Vector3();
   const quaternion = new Quaternion();
-  const colorOf = colorLookup();
   scene.bonds.forEach((bond, index) => {
     const startAtom = scene.atoms[bond.start] as SceneAtom;
     const endAtom = scene.atoms[bond.end] as SceneAtom;
@@ -332,17 +335,62 @@ export function createSceneModel(layers: SceneLayer[]): SceneModel {
     span,
     elements,
     dispose() {
-      // The materials are left to the garbage collector. Disposing the last
-      // material of a shader makes three.js delete the compiled shader, and
-      // the next structure would have to compile it again.
-      for (const object of disposables) {
-        object.geometry.dispose();
-        const sectors = object.userData.sectorTexture;
-        if (sectors instanceof DataTexture) {
-          sectors.dispose();
-        }
-      }
+      disposeGeometry(disposables);
       group.clear();
     },
   };
+}
+
+/**
+ * Free the geometry and textures of `objects`. The materials are left to the
+ * garbage collector: disposing the last material of a shader makes three.js
+ * delete the compiled shader, and the next structure would compile it again.
+ */
+function disposeGeometry(objects: (InstancedMesh | LineSegments)[]): void {
+  for (const object of objects) {
+    object.geometry.dispose();
+    const sectors = object.userData.sectorTexture;
+    if (sectors instanceof DataTexture) {
+      sectors.dispose();
+    }
+  }
+}
+
+/** Two atoms 2 Å apart and the bond between them. */
+const WARMUP_SCENE: StructureScene = {
+  cell: [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  ],
+  atoms: [0, 2].map((z, siteIndex) => ({
+    siteIndex,
+    element: "X",
+    species: [{ element: "X", occupancy: 1 }],
+    position: [0, 0, z],
+    fractional: [0, 0, z],
+    isImage: false,
+  })),
+  bonds: [{ start: 0, end: 1, length: 2 }],
+  elements: [],
+};
+
+/**
+ * A placeholder atom, bond and cell frame in every material a structure is
+ * drawn with, opaque and see-through, so their shaders can compile before
+ * the first structure arrives. It gives no element a colour.
+ */
+export function createShaderWarmup(): { group: Group; dispose(): void } {
+  const white = new Color("#ffffff");
+  const objects: (InstancedMesh | LineSegments)[] = [];
+  for (const opacity of [1, 0.5]) {
+    objects.push(
+      createAtoms(WARMUP_SCENE.atoms, opacity, () => white),
+      createBonds(WARMUP_SCENE, opacity, () => white) as InstancedMesh,
+    );
+  }
+  objects.push(createCellFrame(WARMUP_SCENE.cell, 1));
+  const group = new Group();
+  group.add(...objects);
+  return { group, dispose: () => disposeGeometry(objects) };
 }

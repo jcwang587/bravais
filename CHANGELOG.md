@@ -16,8 +16,8 @@
   structure from cell parameters or vectors.
 - A thumbnail centres on its view's target when the target is not the
   origin.
-- A three.js release whose shaders lack a part bravais extends fails with an
-  error naming it, instead of drawing flat squares.
+- If three.js drops or renames a shader include that bravais patches, drawing
+  fails with an error naming the include, instead of showing flat squares.
 - `package.json` marks the package free of side effects and exports itself.
 - The third-party notices credit three.js for the bundled TrackballControls
   addon.

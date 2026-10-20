@@ -5,7 +5,6 @@ import {
   LineBasicMaterial,
   MeshStandardMaterial,
   ReplaceStencilOp,
-  type Material,
 } from "three";
 
 // Material and lighting currently follow Pretty Lattice's default (its
@@ -383,10 +382,4 @@ export function createGizmoMaterial(
     stencilFunc: AlwaysStencilFunc,
     stencilZPass: ReplaceStencilOp,
   });
-}
-
-export function disposeMaterial(material: Material | Material[]): void {
-  for (const entry of Array.isArray(material) ? material : [material]) {
-    entry.dispose();
-  }
 }

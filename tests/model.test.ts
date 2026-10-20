@@ -1,3 +1,4 @@
+import { InstancedMesh, LineSegments, type Material } from "three";
 import { describe, expect, it } from "vitest";
 
 import { buildScene, expandStructure, readCif } from "../src/index.js";
@@ -57,5 +58,34 @@ describe("scene model", () => {
       { scene: await sceneOf("TiO2-9015662.cif"), opacity: 0 },
     ]);
     expect(model.elements).toEqual(["Co", "O"]);
+  });
+
+  it("frees geometry and textures on dispose but keeps the materials", async () => {
+    // Disposing the last material of a shader would make three.js delete
+    // the compiled shader, and the next structure would compile it again.
+    const model = createSceneModel([
+      { scene: await sceneOf("faujasite-1507214.cif") },
+    ]);
+    const disposed: string[] = [];
+    model.group.traverse((object) => {
+      if (object instanceof InstancedMesh || object instanceof LineSegments) {
+        object.geometry.addEventListener("dispose", () =>
+          disposed.push("geometry"),
+        );
+        (object.material as Material).addEventListener("dispose", () =>
+          disposed.push("material"),
+        );
+        object.userData.sectorTexture?.addEventListener("dispose", () =>
+          disposed.push("texture"),
+        );
+      }
+    });
+    model.dispose();
+    expect(disposed.sort()).toEqual([
+      "geometry",
+      "geometry",
+      "geometry",
+      "texture",
+    ]);
   });
 });

@@ -69,14 +69,13 @@ function labelTexture(label: string, fontFamily: string): CanvasTexture {
   return texture;
 }
 
+/** An arrow along +y with its letter at the tip; `setCell` turns it to its axis. */
 function createAxisArrow(
-  direction: Vector3,
   color: string,
   label: string,
   fontFamily: string,
 ): Group {
   const arrow = new Group();
-  arrow.quaternion.setFromUnitVectors(UP, direction.clone().normalize());
   const material = createGizmoMaterial(color, GIZMO_AXIS_STENCIL);
   const shaft = new Mesh(
     new CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, SHAFT_LENGTH, 24),
@@ -121,36 +120,38 @@ export class AxesGizmo {
   readonly scene = new Scene();
   readonly camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
   private readonly axes = new Group();
+  /** The a, b and c arrows, built once and turned to each new cell. */
+  private readonly arrows: Group[];
   private readonly headlight = new DirectionalLight("#ffffff", 1.78);
   private readonly inverse = new Quaternion();
+  private readonly direction = new Vector3();
 
   /** `fontFamily` is the interface font the axis letters are drawn in. */
-  constructor(private readonly fontFamily: string) {
+  constructor(fontFamily: string) {
     this.camera.position.set(0, 0, 5);
     this.camera.lookAt(0, 0, 0);
     this.scene.add(new AmbientLight("#ffffff", 0.68));
     this.headlight.position.set(1.6, 1.1, 5);
     this.scene.add(this.headlight);
-    this.scene.add(this.axes);
-  }
-
-  setCell(cell: Mat3): void {
-    this.axes.clear();
-    const directions: [keyof typeof AXIS_COLORS, Vector3][] = [
-      ["a", new Vector3(...cell[0])],
-      ["b", new Vector3(...cell[1])],
-      ["c", new Vector3(...cell[2])],
-    ];
-    for (const [label, direction] of directions) {
-      this.axes.add(
-        createAxisArrow(direction, AXIS_COLORS[label], label, this.fontFamily),
-      );
-    }
+    this.arrows = (["a", "b", "c"] as const).map((label) =>
+      createAxisArrow(AXIS_COLORS[label], label, fontFamily),
+    );
     const origin = new Mesh(
       new SphereGeometry(ORIGIN_RADIUS, 32, 16),
       createGizmoMaterial("#f3f2ee", 0),
     );
-    this.axes.add(origin);
+    this.axes.add(...this.arrows, origin);
+    this.scene.add(this.axes);
+  }
+
+  /** Point the arrows along the cell's a, b and c axes. */
+  setCell(cell: Mat3): void {
+    this.arrows.forEach((arrow, axis) => {
+      arrow.quaternion.setFromUnitVectors(
+        UP,
+        this.direction.set(...cell[axis]!).normalize(),
+      );
+    });
   }
 
   /** Draw into the bottom-left `size` pixels of a renderer whose main pass is done. */

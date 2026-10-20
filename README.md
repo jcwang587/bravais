@@ -20,7 +20,7 @@ Add a container with a height:
 <div id="viewer" style="height: 480px"></div>
 ```
 
-Then read a CIF and draw it:
+Then read a CIF and visualize it:
 
 ```js
 import { buildScene, createViewer, expandStructure, readCif } from "bravais";

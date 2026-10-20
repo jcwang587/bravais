@@ -33,6 +33,10 @@ export {
 } from "./symmetry/dataset.js";
 export { typesetSymbol } from "./symmetry/symbol.js";
 export { expandStructure } from "./structure/expand.js";
+export {
+  latticeFromParameters,
+  latticeFromVectors,
+} from "./structure/lattice.js";
 export { buildScene, structureElements } from "./scene/build.js";
 export {
   createViewer,

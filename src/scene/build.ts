@@ -32,7 +32,12 @@ export interface StructureScene {
 /** One structure drawn in a viewer; several overlay, each with its own opacity. */
 export interface SceneLayer {
   scene: StructureScene;
-  /** 1 draws the layer solid; a lower value draws it translucent over the others. Default 1. */
+  /**
+   * 1 draws the layer solid; a lower value draws it translucent over the
+   * others; 0 draws nothing, yet the layer still frames the view, so a viewer
+   * switching between two states of a structure can keep one centre and
+   * scale. Default 1.
+   */
   opacity?: number;
 }
 

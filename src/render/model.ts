@@ -57,10 +57,11 @@ export interface SceneModel {
   cell: Mat3;
   /** Centre of that cell, which `group` moves to the origin. */
   center: Vec3;
-  /** Bounds of every atom and cell corner, in the centred frame. */
+  /** Bounds of every atom and cell corner of every layer, in the centred frame. */
   bounds: Box3;
   /** Largest cell edge length of any layer. */
   span: number;
+  /** Elements of the drawn layers. */
   elements: string[];
   dispose(): void;
 }
@@ -166,6 +167,19 @@ function createSectorTexture(atoms: SceneAtom[]): {
   return { texture, hasVacancies };
 }
 
+/** Session colours as three.js colours, each parsed once. */
+function colorLookup(): (element: string) => Color {
+  const colors = new Map<string, Color>();
+  return (element) => {
+    let color = colors.get(element);
+    if (!color) {
+      color = new Color(elementColor(element));
+      colors.set(element, color);
+    }
+    return color;
+  };
+}
+
 function createAtoms(atoms: SceneAtom[], opacity: number): InstancedMesh {
   // One camera-facing quad per atom; the material draws the sphere on it.
   const geometry = new PlaneGeometry(2, 2);
@@ -176,11 +190,12 @@ function createAtoms(atoms: SceneAtom[], opacity: number): InstancedMesh {
     atoms.length,
   );
   const matrix = new Matrix4();
+  const colorOf = colorLookup();
   atoms.forEach((atom, index) => {
     matrix.makeScale(ATOM_RADIUS, ATOM_RADIUS, ATOM_RADIUS);
     matrix.setPosition(atom.position[0], atom.position[1], atom.position[2]);
     mesh.setMatrixAt(index, matrix);
-    mesh.setColorAt(index, new Color(elementColor(atom.element)));
+    mesh.setColorAt(index, colorOf(atom.element));
   });
   mesh.instanceMatrix.needsUpdate = true;
   if (mesh.instanceColor) {
@@ -213,6 +228,7 @@ function createBonds(
   const end = new Vector3();
   const direction = new Vector3();
   const quaternion = new Quaternion();
+  const colorOf = colorLookup();
   scene.bonds.forEach((bond, index) => {
     const startAtom = scene.atoms[bond.start] as SceneAtom;
     const endAtom = scene.atoms[bond.end] as SceneAtom;
@@ -235,7 +251,7 @@ function createBonds(
       placeholder.scale.set(BOND_RADIUS, length, BOND_RADIUS);
       placeholder.updateMatrix();
       mesh.setMatrixAt(index * 2 + slot, placeholder.matrix);
-      mesh.setColorAt(index * 2 + slot, new Color(elementColor(atom.element)));
+      mesh.setColorAt(index * 2 + slot, colorOf(atom.element));
     }
   });
   mesh.instanceMatrix.needsUpdate = true;
@@ -245,14 +261,19 @@ function createBonds(
   return mesh;
 }
 
-/** Build the three.js objects for the layers, centred on the first cell. */
+/**
+ * Build the three.js objects for the layers, centred on the first cell. A
+ * layer at opacity 0 is not drawn but still counts toward the centre, the
+ * bounds and the span.
+ */
 export function createSceneModel(layers: SceneLayer[]): SceneModel {
   const first = layers[0];
   if (!first) {
     throw new Error("A scene model needs at least one layer.");
   }
   // Colours are settled for the whole set in one go, most common element
-  // first, so the result does not depend on the order atoms are drawn in.
+  // first, so the result depends neither on the order atoms are drawn in nor
+  // on which layers are drawn.
   ensureElementColors(
     layers.flatMap((layer) => [
       ...layer.scene.elements,
@@ -266,9 +287,26 @@ export function createSceneModel(layers: SceneLayer[]): SceneModel {
   const elements: string[] = [];
   let span = 1;
   const disposables: (InstancedMesh | LineSegments)[] = [];
+  const offset = new Vector3(...center);
+  const position = new Vector3();
+  const extent = new Vector3();
 
   for (const layer of layers) {
+    for (const corner of cellCorners(layer.scene.cell)) {
+      bounds.expandByPoint(corner.sub(offset));
+    }
+    for (const atom of layer.scene.atoms) {
+      position.set(...atom.position).sub(offset);
+      bounds.expandByPoint(extent.copy(position).addScalar(ATOM_RADIUS));
+      bounds.expandByPoint(extent.copy(position).subScalar(ATOM_RADIUS));
+    }
+    for (const row of layer.scene.cell) {
+      span = Math.max(span, Math.hypot(...row));
+    }
     const opacity = layer.opacity ?? 1;
+    if (opacity <= 0) {
+      continue;
+    }
     const atoms = createAtoms(layer.scene.atoms, opacity);
     group.add(atoms);
     disposables.push(atoms);
@@ -280,19 +318,6 @@ export function createSceneModel(layers: SceneLayer[]): SceneModel {
     const frame = createCellFrame(layer.scene.cell, opacity);
     group.add(frame);
     disposables.push(frame);
-    for (const corner of cellCorners(layer.scene.cell)) {
-      bounds.expandByPoint(corner.sub(new Vector3(...center)));
-    }
-    for (const atom of layer.scene.atoms) {
-      const position = new Vector3(...atom.position).sub(
-        new Vector3(...center),
-      );
-      bounds.expandByPoint(position.clone().addScalar(ATOM_RADIUS));
-      bounds.expandByPoint(position.clone().subScalar(ATOM_RADIUS));
-    }
-    for (const row of layer.scene.cell) {
-      span = Math.max(span, Math.hypot(...row));
-    }
     for (const element of layer.scene.elements) {
       if (!elements.includes(element)) {
         elements.push(element);

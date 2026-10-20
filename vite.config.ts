@@ -15,7 +15,7 @@ const MOYO_GLUE_FALLBACK = "new URL('moyo_wasm_bg.wasm', import.meta.url)";
  * loaded from file:// cannot fetch a sibling .wasm file, so the bundle
  * carries the binary and instantiates it from memory.
  *
- * The glue's own lookup of the binary is unreachable, since `ensureMoyo`
+ * The glue's own lookup of the binary is unreachable, since `instantiate`
  * always hands it the bytes, but Vite would still inline a second copy of
  * the binary into it as a data: URL and double the bundle. The lookup is
  * cut out before Vite's asset handling sees it.
@@ -56,7 +56,11 @@ export default defineConfig({
     sourcemap: true,
     // three.js is a peer dependency, not part of the bundle. The one addon
     // used, TrackballControls, is bundled, so `three` is the only bare import.
-    rollupOptions: { external: ["three"] },
+    // moyo is a chunk of its own, dist/moyo-wasm.js, imported on first use.
+    rollupOptions: {
+      external: ["three"],
+      output: { chunkFileNames: "[name].js" },
+    },
     lib: {
       entry: "src/index.ts",
       formats: ["es"],

@@ -36,6 +36,7 @@
   },
   "files": [
     "dist",
+    "examples/CoO.cif",
     "CHANGELOG.md",
     "THIRD_PARTY_NOTICES.md"
   ],

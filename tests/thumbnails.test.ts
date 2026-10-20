@@ -21,6 +21,7 @@ vi.mock("../src/render/stage.js", () => ({
           domElement.width = width;
           domElement.height = height;
         },
+        compile() {},
         render() {
           camera.updateMatrixWorld();
           drawn.push(target.clone().project(camera));

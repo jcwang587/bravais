@@ -27,26 +27,25 @@ export interface ViewerOptions {
 
 export interface Viewer {
   /**
-   * Replace what is drawn with scenes from `buildScene`, usually of expanded
-   * structures. The view resets to the standard orientation unless `view`
-   * is given.
+   * Draw these scenes from `buildScene`, replacing what was shown. The view
+   * resets to the standard orientation unless `view` is given.
    */
   setLayers(layers: SceneLayer[], view?: ViewState | null): void;
   /** Remove everything drawn. */
   clear(): void;
-  /** The current pose, or null while nothing is loaded. */
+  /** The current view, or null while nothing is shown. */
   getView(): ViewState | null;
-  /** Restore a pose from `getView`, of this or another viewer. */
+  /** Restore a view from `getView`, of this or another viewer. */
   setView(view: ViewState): void;
   /** Back to the standard orientation, fitted to the viewport. */
   resetView(): void;
-  /** Refit to the element's size; call after layout changes the viewer's box. */
+  /** Fit the canvas to the container again; the viewer does this itself when the container resizes. */
   resize(): void;
   /** Draw a frame now. */
   render(): void;
-  /** Called after the user moves the camera. Returns the unsubscribe function. */
+  /** Call `listener` when the user rotates or zooms. Returns a function that removes it. */
   onInteraction(listener: () => void): () => void;
-  /** Take the viewer out of its container and release its WebGL resources. */
+  /** Remove the viewer from its container and free its WebGL resources. */
   dispose(): void;
 }
 
@@ -110,10 +109,9 @@ function depthFog(
 }
 
 /**
- * Mount a crystal viewer in `container`. The viewer fills the container and
- * follows its size, so the container needs a height of its own. The call
- * gives the container the class `bravais-viewer` and adds, once per
- * document, a `<style id="bravais-styles">` for the overlays.
+ * Create a viewer inside `container`. It fills the container and follows
+ * its size, so give the container a height. Adds the class `bravais-viewer`
+ * to the container and one small stylesheet to the page.
  */
 export function createViewer(
   container: HTMLElement,

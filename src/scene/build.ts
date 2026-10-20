@@ -29,20 +29,19 @@ export interface StructureScene {
   elements: string[];
 }
 
-/** One structure drawn in a viewer; several overlay, each with its own opacity. */
+/** One structure to draw. A viewer can overlay several, each with its own opacity. */
 export interface SceneLayer {
   scene: StructureScene;
   /**
-   * 1 draws the layer solid; a lower value draws it translucent over the
-   * others; 0 draws nothing, yet the layer still frames the view, so a viewer
-   * switching between two states of a structure can keep one centre and
-   * scale. Default 1.
+   * From 0 to 1; default 1. Below 1 the layer is drawn see-through over the
+   * others. At 0 it is not drawn but still counts when fitting the view, so
+   * switching between two versions of a structure keeps the same framing.
    */
   opacity?: number;
 }
 
 export interface BuildSceneOptions {
-  /** Draw image atoms: boundary sites repeated on the opposite faces, edges and corners. Default true. */
+  /** Repeat atoms on the cell's faces, edges and corners on the opposite side too. Default true. */
   imageAtoms?: boolean;
 }
 
@@ -61,9 +60,8 @@ export function structureElements(structure: Structure): string[] {
 }
 
 /**
- * Atoms, bonds and cell of a structure as the renderer draws them. The sites
- * are drawn as listed and `operations` are not applied: pass
- * `expandStructure(structure)` to draw the full cell.
+ * Prepare a structure for drawing: its atoms, bonds and cell. Sites are
+ * drawn as listed; pass `expandStructure(structure)` to draw the whole cell.
  */
 export function buildScene(
   structure: Structure,

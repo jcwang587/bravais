@@ -6,13 +6,11 @@ function subscript(digit: string): string {
 }
 
 /**
- * A Hermann-Mauguin symbol the way textbooks print it: no spaces, screw
- * axes with subscripts and rotoinversion axes with a bar, so `F m -3 m`
- * becomes Fm3̅m and `P 2_1/c` becomes P2₁/c. The ASCII forms of moyo and
- * spglib (`2_1`) and of CIF files (`21`, the digits run together) are both
- * read. A setting suffix such as `:H` is kept after a space. A symbol
- * written without spaces is only given bars and underscore subscripts,
- * since `F432` cannot be told from a screw axis without them.
+ * Write a space-group symbol the way textbooks print it: `F m -3 m` becomes
+ * Fm3̅m and `P 2_1/c` becomes P2₁/c. A setting suffix such as `:H` is kept.
+ * A screw axis written as two digits, as CIF files do (`P 1 21/c 1`), is
+ * recognised only when the symbol has spaces, since in `F432` the digits
+ * are separate axes.
  */
 export function typesetSymbol(symbol: string): string {
   const trimmed = symbol.trim();

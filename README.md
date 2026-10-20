@@ -14,10 +14,17 @@ npm install bravais three
 
 ## Use
 
+```html
+<div id="viewer" style="height: 480px"></div>
+```
+
 ```js
 import { buildScene, createViewer, expandStructure, readCif } from "bravais";
 
-const scene = buildScene(expandStructure(await readCif(cifText)));
+const response = await fetch(
+  "https://raw.githubusercontent.com/materialsproject/pymatgen/v2026.9.24/test-files/cif/LiFePO4.cif",
+);
+const scene = buildScene(expandStructure(await readCif(await response.text())));
 createViewer(document.getElementById("viewer")).setLayers([{ scene }]);
 ```
 

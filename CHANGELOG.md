@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0 - 2026-10-20
+
+- The first structure shows sooner, and the page no longer freezes while it
+  waits: the viewer and the thumbnail renderer compile all their shaders at
+  once when they are created, so the driver compiles them in parallel. On an
+  M2 Max with nothing cached, the first frame comes after 0.4 s instead of
+  0.7 s, and the longest freeze is 0.1 s instead of 0.65 s.
+- Right after a viewer is created, while its shaders compile, `setLayers` and
+  `render` draw once the shaders are ready instead of before they return.
+- The README example runs as written: it gives the viewer's container a height
+  and loads `examples/CoO.cif`, a COD structure the package now ships.
+
 ## 0.1.4 - 2026-10-19
 
 - Switching structures is faster: the viewer keeps its compiled shaders

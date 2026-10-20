@@ -24,8 +24,8 @@ function parseCoefficient(text: string): number {
 }
 
 /**
- * Parse one Jones-faithful operator such as `-x+1/2, y, -z+1/2` or
- * `2/3+x,1/3+y,1/3+z` into a rotation matrix and translation.
+ * Parse a symmetry operation as CIF files write it, such as
+ * `-x+1/2, y, -z+1/2`, into a rotation matrix and translation.
  */
 export function parseSymmetryOperator(text: string): SymmetryOperation {
   // Only signs, digits, fractions, decimals and x, y, z can belong to an

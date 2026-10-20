@@ -7,8 +7,8 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Cartesian row vectors for cell parameters, in the convention pymatgen uses
- * by default: c along z and a in the xz plane.
+ * A lattice from cell lengths in ångström and angles in degrees. The c axis
+ * points along z and a lies in the xz plane, as in pymatgen.
  */
 export function latticeFromParameters(parameters: LatticeParameters): Lattice {
   const { a, b, c } = parameters;
@@ -33,7 +33,7 @@ export function latticeFromParameters(parameters: LatticeParameters): Lattice {
   return { ...parameters, vectors: [vectorA, vectorB, vectorC] };
 }
 
-/** Cell parameters of three Cartesian row vectors. */
+/** A lattice from its three cell vectors, in ångström. */
 export function latticeFromVectors(vectors: Mat3): Lattice {
   const [a, b, c] = vectors;
   const length = (v: Vec3) => Math.hypot(v[0], v[1], v[2]);

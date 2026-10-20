@@ -74,13 +74,13 @@ export type {
 } from "./structure/types.js";
 
 /**
- * Read the first structure in a CIF. Symmetry comes from the file's operator
- * loop, checked to fit its atoms, or from moyo by the file's space-group
- * symbol or number, in the setting its atoms or its cell select; a file
- * naming neither is taken as listing every atom (P1). Throws
- * `CifSyntaxError` for text that is not CIF, `CifStructureError` for a
- * CIF without a usable structure, and `SpaceGroupLookupError` for a space
- * group the symmetry table does not know.
+ * Read the first structure in a CIF file. Its symmetry comes from the
+ * file's list of symmetry operations or, without one, from its space-group
+ * symbol or number; a file with neither is read as listing every atom.
+ *
+ * Throws `CifSyntaxError` for text that is not valid CIF,
+ * `CifStructureError` for a file without a usable structure, and
+ * `SpaceGroupLookupError` for an unknown space group.
  */
 export async function readCif(text: string): Promise<Structure> {
   const document = parseCif(text);

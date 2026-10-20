@@ -326,7 +326,7 @@ function choose(hex: string | null, anchor: Oklch): Assignment {
   return { hex: oklabToHex(chosen.lab), lab: chosen.lab };
 }
 
-/** Assign session colours to `elements` before drawing them, most common first. */
+/** Give these elements their colours now, the more common ones first, so colours do not depend on drawing order. */
 export function ensureElementColors(elements: readonly string[]): void {
   const newcomers = [...new Set(elements)]
     .filter((element) => !assigned.has(element))
@@ -336,7 +336,7 @@ export function ensureElementColors(elements: readonly string[]): void {
   }
 }
 
-/** The session colour of an element, assigned now if it is new. */
+/** The colour of an element as a hex string such as `#e15949`, given on first use. */
 export function elementColor(element: string): string {
   const assignment = assigned.get(element);
   if (assignment) {
@@ -346,7 +346,7 @@ export function elementColor(element: string): string {
   return (assigned.get(element) as Assignment).hex;
 }
 
-/** Elements seen in this session with their colours, in order of first appearance. */
+/** Every element given a colour so far, with its colour, in the order given. */
 export function elementColorAssignments(): [string, string][] {
   return [...assigned].map(([element, assignment]) => [
     element,
@@ -355,9 +355,8 @@ export function elementColorAssignments(): [string, string][] {
 }
 
 /**
- * Forget the session's colours, for when every structure is cleared. The
- * palette is shared by every viewer and thumbnail renderer in the page,
- * which pick up new colours at their next draw.
+ * Forget every colour given so far, for example when all structures are
+ * closed. Viewers and thumbnails pick up new colours at their next draw.
  */
 export function resetElementColors(): void {
   assigned.clear();

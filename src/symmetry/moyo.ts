@@ -14,10 +14,8 @@ export class SpaceGroupLookupError extends Error {
 let hallEntries: MoyoHallSymbolEntry[] | null = null;
 
 /**
- * Load the bundled moyo WebAssembly module, once. It is a separate file of
- * the package that nothing loads until a structure needs it. Every function
- * that needs moyo calls this itself, so calling it is only a way to pay the
- * start-up cost early. A failed load is not cached: the next call tries
+ * Load moyo, the symmetry library, ahead of first use. This is optional:
+ * everything that needs moyo loads it. If loading fails, the next call tries
  * again.
  */
 export function ensureMoyo(): Promise<void> {
@@ -203,10 +201,10 @@ export async function operationSettings(
 }
 
 /**
- * The operations of a space group named by Hall symbol, Hermann-Mauguin
- * symbol or number: those of the setting a suffix such as `:H` selects,
- * otherwise of the standard setting. Throws `SpaceGroupLookupError` when
- * the table has no such group.
+ * The symmetry operations of a space group given by Hall symbol,
+ * Hermann-Mauguin symbol or number, in the setting a suffix such as `:H`
+ * names, or else the standard setting. Throws `SpaceGroupLookupError` for
+ * an unknown group.
  */
 export async function operationsForSpaceGroup(
   info: SpaceGroupInfo,

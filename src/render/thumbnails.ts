@@ -23,8 +23,9 @@ export interface ThumbnailRenderer {
     view: ViewState | null,
     canvas: HTMLCanvasElement,
   ): void;
-  /** Drop the cached model of `key`. */
+  /** Forget the cached model of `key`. */
   release(key: string): void;
+  /** Free the shared WebGL context and every cached model. */
   dispose(): void;
 }
 
@@ -34,8 +35,8 @@ interface CachedModel {
 }
 
 /**
- * One shared WebGL context that paints small previews into ordinary 2D
- * canvases, so a list of structures does not open a context per card.
+ * Draw small previews into ordinary canvases from one shared WebGL context,
+ * so a list of structures does not need a context for each.
  */
 export function createThumbnailRenderer(): ThumbnailRenderer {
   const { renderer, scene, camera, updateHeadlight } = createStage();

@@ -1,8 +1,8 @@
 import type { Vec3 } from "../structure/types.js";
 
 /**
- * A camera pose an app can store, restore and carry between a viewer and a
- * thumbnail: the same state reads the same at any canvas size.
+ * A view an app can save and restore, or pass between a viewer and a
+ * thumbnail. It looks the same at any canvas size.
  */
 export interface ViewState {
   /** Orientation of the camera as [x, y, z, w], three.js order. */

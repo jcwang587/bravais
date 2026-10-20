@@ -128,10 +128,8 @@ function standardStructure(
 }
 
 /**
- * Analyse the symmetry of what a structure actually contains. The structure
- * is expanded to every atom in its cell and handed to moyo, which finds the
- * space group from the atoms alone, so the result does not depend on how,
- * or whether, the file named it.
+ * Find the space group of a structure from its atoms alone, whatever the
+ * file says. See `SymmetryDataset` for what the result holds.
  */
 export async function symmetryDataset(
   structure: Structure,

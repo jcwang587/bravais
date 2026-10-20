@@ -7,8 +7,9 @@ import {
 import { IDENTITY_OPERATION, type Site, type Structure } from "./types.js";
 
 /**
- * Apply every operation to every site and keep the distinct positions: the
- * full cell as an explicit list of sites (P1).
+ * Fill the unit cell: apply every symmetry operation to every site and keep
+ * each distinct position once. The result lists every atom, with the
+ * identity as its only operation.
  */
 export function expandStructure(structure: Structure): Structure {
   const sites: Site[] = [];

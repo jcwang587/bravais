@@ -28,7 +28,6 @@ import {
   createAtomMaterial,
   createBondMaterial,
   createCellFrameMaterial,
-  disposeMaterial,
 } from "./materials.js";
 import { elementColor, ensureElementColors } from "./palette.js";
 
@@ -333,9 +332,11 @@ export function createSceneModel(layers: SceneLayer[]): SceneModel {
     span,
     elements,
     dispose() {
+      // The materials are left to the garbage collector. Disposing the last
+      // material of a shader makes three.js delete the compiled shader, and
+      // the next structure would have to compile it again.
       for (const object of disposables) {
         object.geometry.dispose();
-        disposeMaterial(object.material);
         const sectors = object.userData.sectorTexture;
         if (sectors instanceof DataTexture) {
           sectors.dispose();

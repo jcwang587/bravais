@@ -1,4 +1,4 @@
-import { Fog, MOUSE, Quaternion, Vector3 } from "three";
+import { Fog, MOUSE, Quaternion, Vector2, Vector3 } from "three";
 import { TrackballControls } from "three/addons/controls/TrackballControls.js";
 
 import {
@@ -162,6 +162,7 @@ export function createViewer(
   let dragging = false;
   let framesSinceNotify = 0;
   let notifyPending = false;
+  const canvasSize = new Vector2();
   const lastQuaternion = new Quaternion();
   let lastZoom = 0;
   const lastTarget = new Vector3();
@@ -194,7 +195,11 @@ export function createViewer(
     const rect = container.getBoundingClientRect();
     width = Math.max(1, Math.round(rect.width));
     height = Math.max(1, Math.round(rect.height));
-    renderer.setSize(width, height, false);
+    // Resizing the canvas reallocates its drawing buffer: only on a change.
+    const size = renderer.getSize(canvasSize);
+    if (size.x !== width || size.y !== height) {
+      renderer.setSize(width, height, false);
+    }
     applyPixelFrustum(camera, width, height);
     // The trackball maps pointer motion through the canvas size it last saw.
     controls.handleResize();

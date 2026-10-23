@@ -28,7 +28,6 @@ const viewer = createViewer(document.getElementById("viewer"));
 const status = document.getElementById("status");
 const fixtureSelect = document.getElementById("fixture");
 const fileInput = document.getElementById("file");
-let structure = null;
 
 for (const file of FIXTURES) {
   const option = document.createElement("option");
@@ -37,14 +36,10 @@ for (const file of FIXTURES) {
   fixtureSelect.append(option);
 }
 
-function scene() {
-  return buildScene(expandStructure(structure));
-}
-
 async function load(text) {
   try {
-    structure = await readCif(text);
-    viewer.setLayers([{ scene: scene() }]);
+    const structure = await readCif(text);
+    viewer.setLayers([{ scene: buildScene(expandStructure(structure)) }]);
     const symmetry = await symmetryDataset(structure);
     status.textContent = `${structure.sites.length} sites, ${symmetry.operations.length} operations, ${typesetSymbol(symmetry.symbol)} (${symmetry.number})`;
   } catch (error) {

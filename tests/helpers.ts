@@ -1,8 +1,10 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-/** The CIF text without its symmetry-operator loop. */
-export function withoutOperatorLoop(text: string): string {
+const FIXTURES = fileURLToPath(new URL("./fixtures/", import.meta.url));
+
+/** The CIF text without its symmetry-operation loop. */
+export function withoutOperationLoop(text: string): string {
   return text.replace(
     /loop_\s*\n((?:\s*_\S+\s*\n)+)((?:(?!\s*loop_|\s*_)[^\n]*\n)+)/g,
     (block, tags: string) =>
@@ -12,9 +14,13 @@ export function withoutOperatorLoop(text: string): string {
   );
 }
 
+/** The names of the CIFs under tests/fixtures. */
+export function fixtureNames(): string[] {
+  return readdirSync(FIXTURES)
+    .filter((name) => name.endsWith(".cif"))
+    .sort();
+}
+
 export function fixture(name: string): string {
-  return readFileSync(
-    fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url)),
-    "utf8",
-  );
+  return readFileSync(`${FIXTURES}${name}`, "utf8");
 }

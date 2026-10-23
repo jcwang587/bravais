@@ -22,7 +22,7 @@ export interface Bond {
 }
 
 /** VESTA's bond-search maximum for an element pair, or null when VESTA draws none. */
-export function bondCutoff(elementA: string, elementB: string): number | null {
+function bondCutoff(elementA: string, elementB: string): number | null {
   const key =
     elementA < elementB ? `${elementA}-${elementB}` : `${elementB}-${elementA}`;
   return CUTOFFS[key] ?? null;

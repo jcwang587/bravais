@@ -9,18 +9,18 @@ import {
 
 // Material and lighting currently follow Pretty Lattice's default (its
 // "modern matte" preset).
-export const METALNESS = 0.1;
-export const ROUGHNESS = 0.6;
+const METALNESS = 0.1;
+const ROUGHNESS = 0.6;
 export const AMBIENT_LIGHT_INTENSITY = 0.8;
 export const HEADLIGHT_INTENSITY = 2.2;
 export const HEADLIGHT_OFFSET: readonly [number, number, number] = [
   0.3, 0.2, 0,
 ];
 export const BACKGROUND_COLOR = "#fafafa";
-export const CELL_FRAME_COLOR = "#444444";
+const CELL_FRAME_COLOR = "#444444";
 /** The part of a partially occupied site nobody occupies: a faint, see-through tint. */
 export const VACANCY_COLOR = "#f2f2f2";
-export const VACANCY_OPACITY = 0.3;
+const VACANCY_OPACITY = 0.3;
 /** Added to a vacancy texel's start fraction so the shader can tell it apart. */
 export const VACANCY_FLAG = 2;
 

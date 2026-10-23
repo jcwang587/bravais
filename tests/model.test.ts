@@ -49,7 +49,7 @@ describe("scene model", () => {
     ]);
 
     for (const model of [rawDrawn, refinedDrawn]) {
-      expect(model.center).toEqual(overlay.center);
+      expect(model.group.position.equals(overlay.group.position)).toBe(true);
       expect(model.bounds.equals(overlay.bounds)).toBe(true);
       expect(model.span).toBe(overlay.span);
     }

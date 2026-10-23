@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseCif,
   parseCifStructure,
-  parseSymmetryOperator,
+  parseSymmetryOperation,
 } from "../src/index.js";
 import { parseCifNumber } from "../src/cif/parser.js";
 import { tokenizeCif } from "../src/cif/tokenizer.js";
@@ -53,24 +53,24 @@ describe("parser", () => {
     expect(parseCifNumber("?")).toBeNull();
   });
 
-  it("parses symmetry operators with fractions and decimals", () => {
-    expect(parseSymmetryOperator("-x+1/2, y, -z+1/2")).toEqual({
+  it("parses symmetry operations with fractions and decimals", () => {
+    expect(parseSymmetryOperation("-x+1/2, y, -z+1/2")).toEqual({
       rotation: [-1, 0, 0, 0, 1, 0, 0, 0, -1],
       translation: [0.5, 0, 0.5],
     });
-    const hexagonal = parseSymmetryOperator("2/3+x,1/3+y,1/3+z");
+    const hexagonal = parseSymmetryOperation("2/3+x,1/3+y,1/3+z");
     expect(hexagonal.translation[0]).toBeCloseTo(2 / 3, 9);
-    expect(parseSymmetryOperator("x-y, x, z+0.5").rotation).toEqual([
+    expect(parseSymmetryOperation("x-y, x, z+0.5").rotation).toEqual([
       1, -1, 0, 1, 0, 0, 0, 0, 1,
     ]);
-    expect(parseSymmetryOperator("x, -y+1/2t, -z").translation).toEqual([
+    expect(parseSymmetryOperation("x, -y+1/2t, -z").translation).toEqual([
       0, 0.5, 0,
     ]);
   });
 });
 
 describe("structure from CIF", () => {
-  it("reads CoO's lattice, sites and operators", () => {
+  it("reads CoO's lattice, sites and operations", () => {
     const block = parseCif(fixture("CoO-9008618.cif")).blocks[0]!;
     const parsed = parseCifStructure(block);
     expect(parsed.lattice.a).toBeCloseTo(4.2667, 6);

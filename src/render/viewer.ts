@@ -79,7 +79,7 @@ const GIZMO_SIDE_RATIO = 0.35;
 const GIZMO_MIN_PX = 110;
 const GIZMO_MAX_PX = 180;
 
-function depthFog(
+function createDepthFog(
   model: SceneModel,
   distance: number,
   quaternion: Quaternion,
@@ -351,7 +351,11 @@ export function createViewer(
       model = createSceneModel(layers);
       scene.add(model.group);
       distance = cameraDistance(model.span);
-      scene.fog = depthFog(model, distance, standardQuaternion(model.cell));
+      scene.fog = createDepthFog(
+        model,
+        distance,
+        standardQuaternion(model.cell),
+      );
       legend?.setElements(model.elements);
       gizmo?.setCell(model.cell);
       measure();
@@ -400,7 +404,6 @@ export function createViewer(
     dispose() {
       viewer.clear();
       compiling = null;
-      dragging = false;
       observer?.disconnect();
       controls.dispose();
       gizmo?.dispose();

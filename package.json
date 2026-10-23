@@ -1,6 +1,6 @@
 {
   "name": "bravais",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A minimal crystal structure viewer for the web: reads CIF files and draws them with three.js.",
   "license": "MIT",
   "author": "Jiacheng Wang",

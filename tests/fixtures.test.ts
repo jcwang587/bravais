@@ -8,19 +8,19 @@ import {
   parseCifStructure,
   readCif,
 } from "../src/index.js";
-import { fixture, withoutOperatorLoop } from "./helpers.js";
+import { fixture, withoutOperationLoop } from "./helpers.js";
 
 /**
  * The eleven Crystallography Open Database entries under tests/fixtures, from
  * the simplest to the hardest: cubic rocksalt, tetragonal rutile, the spinel in
  * origin choice 2, the tilted perovskite in the Pbnm setting, calcite on
  * hexagonal axes, an ilmenite-type oxide on rhombohedral axes whose symbol
- * names no setting and which lists every atom of its cell with no operator
+ * names no setting and which lists every atom of its cell with no operation
  * loop, gypsum with its water hydrogens in the I2/c setting, a centred
  * triclinic feldspar, a layered oxide with three cations sharing a site, an
  * organic molecular crystal, and a dehydrated zeolite with Si/Al disorder and
  * partly occupied sodium sites. `atoms` counts the sites of the whole cell
- * before boundary images; `loop` is false when the file has no operator loop
+ * before boundary images; `loop` is false when the file has no operation loop
  * and `operations` counts what moyo supplies.
  */
 const FIXTURES = [
@@ -177,12 +177,12 @@ describe("COD fixtures", () => {
   it.each(
     FIXTURES.filter((entry) => entry.loop !== false && entry.symbol !== "C -1"),
   )(
-    "$file: moyo reproduces the file's operators from its symbol",
+    "$file: moyo reproduces the file's operations from its symbol",
     async ({ file }) => {
       const text = fixture(file);
       const fromFile = expandStructure(await readCif(text));
       const fromMoyo = expandStructure(
-        await readCif(withoutOperatorLoop(text)),
+        await readCif(withoutOperationLoop(text)),
       );
       expect(new Set(fromMoyo.sites.map(positionKey))).toEqual(
         new Set(fromFile.sites.map(positionKey)),
@@ -190,11 +190,11 @@ describe("COD fixtures", () => {
     },
   );
 
-  it("needs the operator loop for the centred triclinic setting C -1", async () => {
+  it("needs the operation loop for the centred triclinic setting C -1", async () => {
     // C -1 is not a setting in the Hall table, so without the loop the
     // feldspar cannot be expanded. The loop is what makes the fixture work.
     const text = fixture("NaAlSi3O8-9001630.cif");
-    await expect(readCif(withoutOperatorLoop(text))).rejects.toThrow(
+    await expect(readCif(withoutOperationLoop(text))).rejects.toThrow(
       SpaceGroupLookupError,
     );
   });

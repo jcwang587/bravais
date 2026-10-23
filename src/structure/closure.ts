@@ -23,16 +23,16 @@ export function listingClosure(
   sites: Site[],
   operations: SymmetryOperation[],
 ): ListingClosure {
-  const index = new PositionIndex(EQUIVALENT_TOLERANCE);
+  const positions = new PositionIndex(EQUIVALENT_TOLERANCE);
   for (const site of sites) {
-    index.add(site.fractional);
+    positions.add(site.fractional);
   }
   let preExpanded = false;
   let closed = true;
-  sites.forEach((site, self) => {
+  sites.forEach((site, siteIndex) => {
     for (const operation of operations) {
-      const hits = index.near(applyOperation(operation, site.fractional));
-      if (hits.some((hit) => hit !== self)) {
+      const hits = positions.near(applyOperation(operation, site.fractional));
+      if (hits.some((hit) => hit !== siteIndex)) {
         preExpanded = true;
       }
       if (hits.length === 0) {

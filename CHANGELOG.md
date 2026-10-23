@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1 - 2026-10-23
+
+- `parseSymmetryOperator` is renamed `parseSymmetryOperation`, after the
+  `SymmetryOperation` it returns, and its errors say "symmetry operation".
+- Dead code is removed and internal names are made consistent; nothing else
+  changes for users.
+
 ## 0.2.0 - 2026-10-20
 
 - The first structure shows sooner, and the page no longer freezes while it

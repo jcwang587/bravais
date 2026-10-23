@@ -37,7 +37,8 @@ createViewer(document.getElementById("viewer")).setLayers([{ scene }]);
 - [VESTA](https://jp-minerals.org/vesta/en/)'s bond cutoffs and occupancy
   pies, with the cutoff table from
   [pymatgen](https://github.com/materialsproject/pymatgen).
-- Björn Ottosson's OKLab colour space, to keep element colours apart.
+- Björn Ottosson's [OKLab](https://bottosson.github.io/posts/oklab/) colour
+  space, to keep element colours apart.
 
 Thanks to Feitong Song's
 [Pretty Lattice](https://github.com/songfeitong/pretty-lattice), whose look,

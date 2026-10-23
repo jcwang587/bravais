@@ -38,7 +38,7 @@ function stablePerpendicular(axis: Vector3): Vector3 {
 }
 
 /** Camera outward direction and up vector of the standard view of a cell. */
-export function standardViewVectors(cell: Mat3): {
+function standardViewVectors(cell: Mat3): {
   outward: Vector3;
   up: Vector3;
 } {
@@ -108,7 +108,7 @@ export function quaternionTuple(
 }
 
 /** Size of `bounds` projected on the screen plane of `quaternion`. */
-export function projectedSize(
+function projectedSize(
   bounds: Box3,
   quaternion: Quaternion,
 ): { width: number; height: number } {

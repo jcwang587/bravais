@@ -116,7 +116,7 @@ const PRIORITY_RANK = new Map(
 );
 
 /** Two colours closer than this, in weighted OKLab, read as one. */
-const MIN_DISTANCE = 0.1;
+const MIN_SEPARATION = 0.1;
 /** Shading already varies lightness on a sphere, so hue and chroma count more. */
 const LIGHTNESS_WEIGHT = 0.7;
 /** Adjusted colours stay in the palette's pastel band: never near white or black, never garish. */
@@ -145,7 +145,6 @@ const BRIGHTENING_PENALTY = 1.5;
 const TINT_COST = 2;
 
 interface Candidate {
-  lch: Oklch;
   lab: Oklab;
   cost: number;
 }
@@ -163,16 +162,17 @@ function hashString(text: string): number {
   return hash;
 }
 
-/**
- * The anchor of an element: its refinement, else its base colour, else a
- * hue spread by the golden angle over the atomic number, so an element the
- * base table lacks still gets the same colour every time.
- */
+/** The fixed colour of an element: its refinement, else its base colour. */
 function anchorHex(element: string): string | null {
   return ANCHOR_REFINEMENTS[element] ?? BASE_COLORS[element] ?? null;
 }
 
-function anchorColor(element: string): Oklch {
+/**
+ * The anchor of an element: its fixed colour or, for an element the base
+ * table lacks, a hue spread by the golden angle over the atomic number, so
+ * it still gets the same colour every time.
+ */
+function anchorLch(element: string): Oklch {
   const hex = anchorHex(element);
   if (hex) {
     return oklabToOklch(hexToOklab(hex));
@@ -194,7 +194,7 @@ function priorityRank(element: string): number {
   );
 }
 
-function withinBand(lch: Oklch): Oklch {
+function clampToBand(lch: Oklch): Oklch {
   return clampChromaToGamut({
     L: Math.min(BAND.maxL, Math.max(BAND.minL, lch.L)),
     C: Math.min(BAND.maxC, Math.max(0, lch.C)),
@@ -208,8 +208,7 @@ function maxChroma(L: number, h: number): number {
 }
 
 function candidate(lch: Oklch, cost: number): Candidate {
-  const banded = withinBand(lch);
-  return { lch: banded, lab: oklchToOklab(banded), cost };
+  return { lab: oklchToOklab(clampToBand(lch)), cost };
 }
 
 /**
@@ -295,7 +294,7 @@ function choose(hex: string | null, anchor: Oklch): Assignment {
       Infinity,
     );
   const anchorLab = oklchToOklab(anchor);
-  if (separationFrom(anchorLab) >= MIN_DISTANCE) {
+  if (separationFrom(anchorLab) >= MIN_SEPARATION) {
     return { hex: hex ?? oklabToHex(anchorLab), lab: anchorLab };
   }
   let best: Candidate | null = null;
@@ -305,7 +304,7 @@ function choose(hex: string | null, anchor: Oklch): Assignment {
   let fallbackSeparation = -Infinity;
   for (const entry of candidatesAround(anchor)) {
     const separation = separationFrom(entry.lab);
-    if (separation >= MIN_DISTANCE) {
+    if (separation >= MIN_SEPARATION) {
       if (
         entry.cost < bestCost - 1e-9 ||
         (Math.abs(entry.cost - bestCost) <= 1e-9 && separation > bestSeparation)
@@ -322,7 +321,7 @@ function choose(hex: string | null, anchor: Oklch): Assignment {
       fallbackSeparation = separation;
     }
   }
-  const chosen = best ?? fallback ?? { lab: anchorLab, lch: anchor, cost: 0 };
+  const chosen = best ?? fallback ?? { lab: anchorLab, cost: 0 };
   return { hex: oklabToHex(chosen.lab), lab: chosen.lab };
 }
 
@@ -332,7 +331,7 @@ export function ensureElementColors(elements: readonly string[]): void {
     .filter((element) => !assigned.has(element))
     .sort((left, right) => priorityRank(left) - priorityRank(right));
   for (const element of newcomers) {
-    assigned.set(element, choose(anchorHex(element), anchorColor(element)));
+    assigned.set(element, choose(anchorHex(element), anchorLch(element)));
   }
 }
 
@@ -343,7 +342,7 @@ export function elementColor(element: string): string {
     return assignment.hex;
   }
   ensureElementColors([element]);
-  return (assigned.get(element) as Assignment).hex;
+  return assigned.get(element)!.hex;
 }
 
 /** Every element given a colour so far, with its colour, in the order given. */

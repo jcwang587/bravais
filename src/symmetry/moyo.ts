@@ -145,7 +145,7 @@ function entriesForSymbol(info: SpaceGroupInfo): MoyoHallSymbolEntry[] {
   return [];
 }
 
-function describe(info: SpaceGroupInfo): string {
+function describeSpaceGroup(info: SpaceGroupInfo): string {
   return [info.hallSymbol, info.symbol, info.number]
     .filter((part) => part !== null)
     .join(" / ");
@@ -173,7 +173,7 @@ export async function operationSettings(
     const entries = entriesForSymbol(info);
     if (entries.length === 0) {
       throw new SpaceGroupLookupError(
-        `Space group ${describe(info)} is not in the symmetry table.`,
+        `Space group ${describeSpaceGroup(info)} is not in the symmetry table.`,
       );
     }
     return entries.map((entry) => ({

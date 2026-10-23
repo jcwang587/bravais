@@ -1,7 +1,5 @@
-import {
-  CifStructureError,
-  type ParsedCifStructure,
-} from "../cif/structure.js";
+import { CifStructureError } from "../cif/errors.js";
+import type { ParsedCifStructure } from "../cif/structure.js";
 import { listingClosure } from "../structure/closure.js";
 import {
   IDENTITY_OPERATION,
@@ -12,10 +10,10 @@ import {
 import { operationSettings } from "./moyo.js";
 
 /** Lengths within this fraction, and angles within this many degrees, are equal. */
-const SAME_LENGTH = 1e-3;
-const SAME_ANGLE = 0.01;
+const LENGTH_TOLERANCE = 1e-3;
+const ANGLE_TOLERANCE = 0.01;
 
-function misfit(): CifStructureError {
+function misfitError(): CifStructureError {
   return new CifStructureError(
     "The symmetry does not fit the listed atoms: they are already expanded, yet the operations generate positions the file does not list.",
   );
@@ -24,7 +22,7 @@ function misfit(): CifStructureError {
 function assertFits(sites: Site[], operations: SymmetryOperation[]): void {
   const closure = listingClosure(sites, operations);
   if (closure.preExpanded && !closure.closed) {
-    throw misfit();
+    throw misfitError();
   }
 }
 
@@ -38,8 +36,9 @@ function axesOfCell({
   gamma,
 }: LatticeParameters): "H" | "R" | null {
   const sameLength = (x: number, y: number) =>
-    Math.abs(x - y) <= SAME_LENGTH * Math.max(x, y);
-  const sameAngle = (x: number, y: number) => Math.abs(x - y) <= SAME_ANGLE;
+    Math.abs(x - y) <= LENGTH_TOLERANCE * Math.max(x, y);
+  const sameAngle = (x: number, y: number) =>
+    Math.abs(x - y) <= ANGLE_TOLERANCE;
   if (
     sameLength(a, b) &&
     sameLength(b, c) &&
@@ -99,7 +98,7 @@ export async function resolveOperations(
     return fitting.operations;
   }
   if (closures.some((closure) => closure.preExpanded)) {
-    throw misfit();
+    throw misfitError();
   }
   const axes = axesOfCell(parsed.lattice);
   const byCell =

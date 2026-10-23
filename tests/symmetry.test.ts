@@ -1,21 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { expandStructure, readCif, symmetryDataset } from "../src/index.js";
-import { fixture } from "./helpers.js";
-
-const FIXTURES = [
-  "CoO-9008618.cif",
-  "TiO2-9015662.cif",
-  "Co3O4-9005887.cif",
-  "CaTiO3-1567488.cif",
-  "CaCO3-1547350.cif",
-  "CoTiO3-5910080.cif",
-  "CaSO4-2H2O-2300259.cif",
-  "NaAlSi3O8-9001630.cif",
-  "LiNiMnCoO2-4002443.cif",
-  "aspirin-1515581.cif",
-  "faujasite-1507214.cif",
-];
+import { fixture, fixtureNames } from "./helpers.js";
 
 describe("symmetry analysis", () => {
   it("names the standard setting whatever the file calls it", async () => {
@@ -58,7 +44,7 @@ describe("symmetry analysis", () => {
     expect(layered.setting).toBe("H");
   });
 
-  it.each(FIXTURES)(
+  it.each(fixtureNames())(
     "%s: agrees with the file's number and operation count",
     async (file) => {
       const structure = await readCif(fixture(file));

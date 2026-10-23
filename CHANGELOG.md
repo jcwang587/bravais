@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 - 2026-10-23
+## Unreleased
 
 - `parseSymmetryOperator` is renamed `parseSymmetryOperation`, after the
   `SymmetryOperation` it returns, and its errors say "symmetry operation".

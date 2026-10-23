@@ -10,7 +10,7 @@ import {
   operationsForSpaceGroup,
   parseCif,
   parseCifStructure,
-  parseSymmetryOperator,
+  parseSymmetryOperation,
   readCif,
   structureElements,
   symmetryDataset,
@@ -95,19 +95,21 @@ describe("CifStructureError", () => {
     expect(() => parseCifStructure(block(text))).toThrow(/coordinates/);
   });
 
-  it("is thrown for operators that cannot be read", () => {
-    expect(() => parseSymmetryOperator("x, y")).toThrow(CifStructureError);
-    expect(() => parseSymmetryOperator("x, y")).toThrow(/three components/);
-    expect(() => parseSymmetryOperator("x, y, ++z")).toThrow(CifStructureError);
-    expect(() => parseSymmetryOperator("x, y, 1.2.3+z")).toThrow(
+  it("is thrown for operations that cannot be read", () => {
+    expect(() => parseSymmetryOperation("x, y")).toThrow(CifStructureError);
+    expect(() => parseSymmetryOperation("x, y")).toThrow(/three components/);
+    expect(() => parseSymmetryOperation("x, y, ++z")).toThrow(
       CifStructureError,
     );
-    expect(() => parseSymmetryOperator("x+1/0, y, z")).toThrow(
+    expect(() => parseSymmetryOperation("x, y, 1.2.3+z")).toThrow(
+      CifStructureError,
+    );
+    expect(() => parseSymmetryOperation("x+1/0, y, z")).toThrow(
       CifStructureError,
     );
   });
 
-  it("reaches readCif from an operator loop", async () => {
+  it("reaches readCif from an operation loop", async () => {
     const text = `${P1}loop_\n_space_group_symop_operation_xyz\n'x, y'\n`;
     await expect(readCif(text)).rejects.toBeInstanceOf(CifStructureError);
   });

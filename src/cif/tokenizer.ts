@@ -1,21 +1,11 @@
+import { CifSyntaxError } from "./errors.js";
+
 export type CifTokenKind = "tag" | "value" | "loop" | "data" | "save" | "stop";
 
 export interface CifToken {
   kind: CifTokenKind;
   text: string;
   line: number;
-}
-
-/** The text is not CIF the tokenizer and parser accept. */
-export class CifSyntaxError extends Error {
-  /** 1-based line of the problem. */
-  readonly line: number;
-
-  constructor(message: string, line: number) {
-    super(`CIF line ${line}: ${message}`);
-    this.name = "CifSyntaxError";
-    this.line = line;
-  }
 }
 
 function isWhitespace(char: string): boolean {

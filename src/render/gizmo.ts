@@ -47,14 +47,13 @@ const VIEW_EXTENT = 3.2;
 const UP = new Vector3(0, 1, 0);
 
 /** The plain italic letter of an axis, in the interface's font, drawn white for the sprite to tint. */
-function labelTexture(label: string, fontFamily: string): CanvasTexture {
+function createLabelTexture(label: string, fontFamily: string): CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = LABEL_TEXTURE_SIZE;
   canvas.height = LABEL_TEXTURE_SIZE;
   const context = canvas.getContext("2d");
   if (context) {
     const fontSize = LABEL_TEXTURE_SIZE * 0.68;
-    context.clearRect(0, 0, canvas.width, canvas.height);
     context.font = `italic 600 ${fontSize}px ${fontFamily}`;
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -89,7 +88,7 @@ function createAxisArrow(
   cone.position.y = SHAFT_LENGTH + CONE_LENGTH / 2;
   arrow.add(shaft, cone);
 
-  const texture = labelTexture(label, fontFamily);
+  const texture = createLabelTexture(label, fontFamily);
   const passes = [
     [LABEL_COLOR, NotEqualStencilFunc],
     [LABEL_COLOR_OVER_AXES, EqualStencilFunc],
@@ -118,12 +117,18 @@ function createAxisArrow(
 /** The a, b, c axes of the cell drawn in a corner, following the camera. */
 export class AxesGizmo {
   readonly scene = new Scene();
-  readonly camera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
+  readonly camera = new OrthographicCamera(
+    -VIEW_EXTENT / 2,
+    VIEW_EXTENT / 2,
+    VIEW_EXTENT / 2,
+    -VIEW_EXTENT / 2,
+    0.1,
+    20,
+  );
   private readonly axes = new Group();
   /** The a, b and c arrows, built once and turned to each new cell. */
   private readonly arrows: Group[];
   private readonly headlight = new DirectionalLight("#ffffff", 1.78);
-  private readonly inverse = new Quaternion();
   private readonly direction = new Vector3();
 
   /** `fontFamily` is the interface font the axis letters are drawn in. */
@@ -160,13 +165,7 @@ export class AxesGizmo {
     cameraQuaternion: Quaternion,
     size: number,
   ): void {
-    this.axes.quaternion.copy(this.inverse.copy(cameraQuaternion).invert());
-    const half = VIEW_EXTENT / 2;
-    this.camera.left = -half;
-    this.camera.right = half;
-    this.camera.top = half;
-    this.camera.bottom = -half;
-    this.camera.updateProjectionMatrix();
+    this.axes.quaternion.copy(cameraQuaternion).invert();
     const previousAutoClear = renderer.autoClear;
     renderer.autoClear = false;
     renderer.setViewport(0, 0, size, size);

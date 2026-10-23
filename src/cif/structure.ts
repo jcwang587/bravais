@@ -16,14 +16,12 @@ import {
   type CifBlock,
 } from "./parser.js";
 import { CifStructureError } from "./errors.js";
-import { parseSymmetryOperator } from "./symmetry-operators.js";
-
-export { CifStructureError };
+import { parseSymmetryOperation } from "./symmetry-operations.js";
 
 /** Rows this close in fractional coordinates describe one site. */
 const SITE_MERGE_TOLERANCE = 1e-4;
 
-const OPERATOR_TAGS = [
+const OPERATION_TAGS = [
   "_space_group_symop_operation_xyz",
   "_symmetry_equiv_pos_as_xyz",
 ];
@@ -41,7 +39,7 @@ const HALL_TAGS = ["_space_group_name_hall", "_symmetry_space_group_name_hall"];
 export interface ParsedCifStructure {
   lattice: Lattice;
   sites: Site[];
-  /** Null when the file lists no operators; see `spaceGroup` then. */
+  /** Null when the file lists no operations; see `spaceGroup` then. */
   operations: SymmetryOperation[] | null;
   spaceGroup: SpaceGroupInfo;
 }
@@ -149,21 +147,20 @@ function readSites(block: CifBlock): Site[] {
 }
 
 function readOperations(block: CifBlock): SymmetryOperation[] | null {
-  const loop = block.findLoop(OPERATOR_TAGS);
+  const loop = block.findLoop(OPERATION_TAGS);
   if (!loop) {
-    const single = block.get(OPERATOR_TAGS);
-    return single === null ? null : [parseSymmetryOperator(single)];
+    const single = block.get(OPERATION_TAGS);
+    return single === null ? null : [parseSymmetryOperation(single)];
   }
-  const column = loopColumn(loop, OPERATOR_TAGS) ?? [];
+  const column = loopColumn(loop, OPERATION_TAGS) ?? [];
   const operations = column
     .filter((text) => !isCifPlaceholder(text))
-    .map(parseSymmetryOperator);
+    .map(parseSymmetryOperation);
   return operations.length > 0 ? operations : null;
 }
 
 function readSpaceGroup(block: CifBlock): SpaceGroupInfo {
-  const numberText = block.get(SPACE_GROUP_NUMBER_TAGS);
-  const number = numberText === null ? null : parseCifNumber(numberText);
+  const number = parseCifNumber(block.get(SPACE_GROUP_NUMBER_TAGS));
   const symbol = block.get(HERMANN_MAUGUIN_TAGS);
   const hallSymbol = block.get(HALL_TAGS);
   return {
@@ -187,7 +184,7 @@ export function isStructureBlock(block: CifBlock): boolean {
   return block.findLoop("_atom_site_fract_x") !== null;
 }
 
-/** Lattice, merged sites, operators and space-group tags of one data block. */
+/** Lattice, merged sites, operations and space-group tags of one data block. */
 export function parseCifStructure(block: CifBlock): ParsedCifStructure {
   const lattice = latticeFromParameters({
     a: requireNumber(block, "_cell_length_a"),

@@ -11,7 +11,7 @@ import { applyOperation } from "../src/structure/fractional.js";
 import { periodicAtoms } from "../src/structure/images.js";
 import { latticeFromParameters } from "../src/structure/lattice.js";
 import type { Site } from "../src/structure/types.js";
-import { fixture, withoutOperatorLoop } from "./helpers.js";
+import { fixture, withoutOperationLoop } from "./helpers.js";
 
 function composition(sites: Site[]): Record<string, number> {
   const counts: Record<string, number> = {};
@@ -171,7 +171,7 @@ describe("symmetry fit", () => {
     expect(onRhombohedralAxes.operations).toHaveLength(6);
     expect(expandStructure(onRhombohedralAxes).sites).toHaveLength(2);
 
-    const text = withoutOperatorLoop(fixture("CaCO3-1547350.cif"));
+    const text = withoutOperationLoop(fixture("CaCO3-1547350.cif"));
     const hexagonalNoSuffix = text.replace("'R -3 c :H'", "'R -3 c'");
     expect(hexagonalNoSuffix).not.toBe(text);
     const onHexagonalAxes = await readCif(hexagonalNoSuffix);

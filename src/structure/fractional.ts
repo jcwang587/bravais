@@ -4,12 +4,12 @@ import type { SymmetryOperation, Vec3 } from "./types.js";
 export const EQUIVALENT_TOLERANCE = 1e-3;
 
 /** A wrapped coordinate this close below 1 is rounding; it belongs at 0. */
-const NEAR_ONE = 1e-9;
+const WRAP_TOLERANCE = 1e-9;
 
-/** Fold a coordinate into [0, 1); a value within `nearOne` below 1 becomes 0. */
-export function wrap(value: number, nearOne = NEAR_ONE): number {
+/** Fold a coordinate into [0, 1); a value within `tolerance` below 1 becomes 0. */
+export function wrap(value: number, tolerance = WRAP_TOLERANCE): number {
   const wrapped = value - Math.floor(value);
-  return wrapped >= 1 - nearOne ? 0 : wrapped;
+  return wrapped >= 1 - tolerance ? 0 : wrapped;
 }
 
 /** Fold a fractional position into the cell. */
@@ -18,9 +18,9 @@ export function wrapVector(fractional: Vec3): Vec3 {
 }
 
 /** Periodic distance of two fractional positions, per axis, below `tolerance`. */
-export function samePosition(p: Vec3, q: Vec3, tolerance: number): boolean {
+function samePosition(p: Vec3, q: Vec3, tolerance: number): boolean {
   for (let axis = 0; axis < 3; axis += 1) {
-    let delta = Math.abs((p[axis] as number) - (q[axis] as number));
+    let delta = Math.abs(p[axis]! - q[axis]!);
     delta -= Math.round(delta);
     if (Math.abs(delta) > tolerance) {
       return false;

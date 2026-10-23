@@ -52,10 +52,8 @@ const UP = new Vector3(0, 1, 0);
 
 export interface SceneModel {
   group: Group;
-  /** Cell row vectors of the first layer, the frame everything is centred on. */
+  /** Cell row vectors of the first layer; `group` moves its centre to the origin. */
   cell: Mat3;
-  /** Centre of that cell, which `group` moves to the origin. */
-  center: Vec3;
   /** Bounds of every atom and cell corner of every layer, in the centred frame. */
   bounds: Box3;
   /** Largest cell edge length of any layer. */
@@ -84,7 +82,7 @@ function cellCorners(cell: Mat3): Vector3[] {
   ];
 }
 
-export function cellCenter(cell: Mat3): Vec3 {
+function cellCenter(cell: Mat3): Vec3 {
   const [a, b, c] = cell;
   return [
     (a[0] + b[0] + c[0]) / 2,
@@ -112,8 +110,8 @@ function createCellFrame(cell: Mat3, opacity: number): LineSegments {
   const corners = cellCorners(cell);
   const positions: number[] = [];
   for (const [start, end] of CELL_EDGES) {
-    const from = corners[start] as Vector3;
-    const to = corners[end] as Vector3;
+    const from = corners[start]!;
+    const to = corners[end]!;
     positions.push(from.x, from.y, from.z, to.x, to.y, to.z);
   }
   const geometry = new BufferGeometry();
@@ -232,8 +230,8 @@ function createBonds(
   const direction = new Vector3();
   const quaternion = new Quaternion();
   scene.bonds.forEach((bond, index) => {
-    const startAtom = scene.atoms[bond.start] as SceneAtom;
-    const endAtom = scene.atoms[bond.end] as SceneAtom;
+    const startAtom = scene.atoms[bond.start]!;
+    const endAtom = scene.atoms[bond.end]!;
     start.set(...startAtom.position);
     end.set(...endAtom.position);
     direction.subVectors(end, start);
@@ -330,7 +328,6 @@ export function createSceneModel(layers: SceneLayer[]): SceneModel {
   return {
     group,
     cell: first.scene.cell,
-    center,
     bounds,
     span,
     elements,

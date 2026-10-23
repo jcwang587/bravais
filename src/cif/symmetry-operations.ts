@@ -17,7 +17,7 @@ function parseCoefficient(text: string): number {
     : Number(text);
   if (!Number.isFinite(value)) {
     throw new CifStructureError(
-      `Cannot read the number ${JSON.stringify(text)} in a symmetry operator.`,
+      `Cannot read the number ${JSON.stringify(text)} in a symmetry operation.`,
     );
   }
   return value;
@@ -27,15 +27,15 @@ function parseCoefficient(text: string): number {
  * Parse a symmetry operation as CIF files write it, such as
  * `-x+1/2, y, -z+1/2`, into a rotation matrix and translation.
  */
-export function parseSymmetryOperator(text: string): SymmetryOperation {
+export function parseSymmetryOperation(text: string): SymmetryOperation {
   // Only signs, digits, fractions, decimals and x, y, z can belong to an
-  // operator; stray letters such as the "t" some exports append are dropped.
+  // operation; stray letters such as the "t" some exports append are dropped.
   const components = text
     .split(",")
     .map((part) => part.toLowerCase().replace(/[^xyz0-9./+-]/g, ""));
   if (components.length !== 3) {
     throw new CifStructureError(
-      `A symmetry operator needs three components: ${JSON.stringify(text)}.`,
+      `A symmetry operation needs three components: ${JSON.stringify(text)}.`,
     );
   }
   const rotation: number[] = [];
@@ -45,7 +45,7 @@ export function parseSymmetryOperator(text: string): SymmetryOperation {
     const terms = component.match(/[+-]?[^+-]+/g);
     if (!terms || terms.join("") !== component) {
       throw new CifStructureError(
-        `Cannot read the symmetry operator ${JSON.stringify(text)}.`,
+        `Cannot read the symmetry operation ${JSON.stringify(text)}.`,
       );
     }
     const row = [0, 0, 0];
@@ -56,7 +56,7 @@ export function parseSymmetryOperator(text: string): SymmetryOperation {
         shift += parseCoefficient(term);
       } else {
         const coefficient = parseCoefficient(
-          term.replace(AXES[axis] as string, "").replace(/\*$/, ""),
+          term.replace(AXES[axis]!, "").replace(/\*$/, ""),
         );
         row[axis] = (row[axis] ?? 0) + coefficient;
       }

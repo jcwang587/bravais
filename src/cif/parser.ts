@@ -1,4 +1,5 @@
-import { CifSyntaxError, tokenizeCif, type CifToken } from "./tokenizer.js";
+import { CifSyntaxError } from "./errors.js";
+import { tokenizeCif, type CifToken } from "./tokenizer.js";
 
 export interface CifLoop {
   /** Lowercase tags, in column order. */
@@ -160,7 +161,7 @@ export function parseCif(text: string): CifDocument {
         const tags: string[] = [];
         index += 1;
         while (tokens[index]?.kind === "tag") {
-          tags.push((tokens[index] as CifToken).text.toLowerCase());
+          tags.push(tokens[index]!.text.toLowerCase());
           index += 1;
         }
         if (tags.length === 0) {
@@ -168,7 +169,7 @@ export function parseCif(text: string): CifDocument {
         }
         const values: string[] = [];
         while (!isLoopTerminator(tokens[index])) {
-          values.push((tokens[index] as CifToken).text);
+          values.push(tokens[index]!.text);
           index += 1;
         }
         if (saveFrameDepth > 0) {

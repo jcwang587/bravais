@@ -55,7 +55,7 @@ function oklabToLinearRgb(lab: Oklab): [number, number, number] {
   ];
 }
 
-export function isInGamut(lab: Oklab): boolean {
+function isInGamut(lab: Oklab): boolean {
   return oklabToLinearRgb(lab).every(
     (channel) => channel >= -1e-4 && channel <= 1 + 1e-4,
   );

@@ -1,25 +1,18 @@
+import { CifStructureError } from "./cif/errors.js";
 import { parseCif } from "./cif/parser.js";
-import {
-  CifStructureError,
-  isStructureBlock,
-  parseCifStructure,
-} from "./cif/structure.js";
+import { isStructureBlock, parseCifStructure } from "./cif/structure.js";
 import { resolveOperations } from "./symmetry/resolve.js";
 import type { Structure } from "./structure/types.js";
 
+export { CifStructureError, CifSyntaxError } from "./cif/errors.js";
 export {
   parseCif,
   type CifBlock,
   type CifDocument,
   type CifLoop,
 } from "./cif/parser.js";
-export { CifSyntaxError } from "./cif/tokenizer.js";
-export {
-  CifStructureError,
-  parseCifStructure,
-  type ParsedCifStructure,
-} from "./cif/structure.js";
-export { parseSymmetryOperator } from "./cif/symmetry-operators.js";
+export { parseCifStructure, type ParsedCifStructure } from "./cif/structure.js";
+export { parseSymmetryOperation } from "./cif/symmetry-operations.js";
 export {
   SpaceGroupLookupError,
   ensureMoyo,
@@ -37,29 +30,6 @@ export {
   latticeFromParameters,
   latticeFromVectors,
 } from "./structure/lattice.js";
-export { buildScene, structureElements } from "./scene/build.js";
-export {
-  createViewer,
-  type Viewer,
-  type ViewerOptions,
-} from "./render/viewer.js";
-export {
-  createThumbnailRenderer,
-  type ThumbnailRenderer,
-} from "./render/thumbnails.js";
-export type { SceneLayer } from "./scene/build.js";
-export type { ViewState } from "./render/view-state.js";
-export {
-  elementColor,
-  elementColorAssignments,
-  ensureElementColors,
-  resetElementColors,
-} from "./render/palette.js";
-export type {
-  BuildSceneOptions,
-  SceneAtom,
-  StructureScene,
-} from "./scene/build.js";
 export type { Bond } from "./structure/bonds.js";
 export type {
   Lattice,
@@ -72,6 +42,30 @@ export type {
   SymmetryOperation,
   Vec3,
 } from "./structure/types.js";
+export {
+  buildScene,
+  structureElements,
+  type BuildSceneOptions,
+  type SceneAtom,
+  type SceneLayer,
+  type StructureScene,
+} from "./scene/build.js";
+export {
+  createViewer,
+  type Viewer,
+  type ViewerOptions,
+} from "./render/viewer.js";
+export {
+  createThumbnailRenderer,
+  type ThumbnailRenderer,
+} from "./render/thumbnails.js";
+export type { ViewState } from "./render/view-state.js";
+export {
+  elementColor,
+  elementColorAssignments,
+  ensureElementColors,
+  resetElementColors,
+} from "./render/palette.js";
 
 /**
  * Read the first structure in a CIF file. Its symmetry comes from the

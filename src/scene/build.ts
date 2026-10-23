@@ -71,10 +71,7 @@ export function buildScene(
     structure.sites,
     options.imageAtoms ?? true,
   ).map((atom) => {
-    const site = structure.sites[atom.siteIndex];
-    if (!site) {
-      throw new Error(`Site ${atom.siteIndex} is missing.`);
-    }
+    const site = structure.sites[atom.siteIndex]!;
     const majority = site.species[0];
     if (!majority) {
       throw new Error(`Site ${site.label} has no species.`);

@@ -30,6 +30,27 @@ const scene = buildScene(expandStructure(await readCif(await response.text())));
 createViewer(document.getElementById("viewer")).setLayers([{ scene }]);
 ```
 
+A structure read elsewhere, such as by a CIF reader in another language, can
+be given as plain data instead, with its symmetry operations, its space group,
+or neither when the sites list every atom of the cell:
+
+```js
+import { readStructure } from "bravais";
+
+const structure = await readStructure({
+  lattice: { a: 4.26, b: 4.26, c: 4.26, alpha: 90, beta: 90, gamma: 90 },
+  sites: [
+    { label: "Co", fractional: [0, 0, 0], species: [{ element: "Co" }] },
+    { label: "O", fractional: [0.5, 0.5, 0.5], species: [{ element: "O" }] },
+  ],
+  spaceGroup: { symbol: "F m -3 m" },
+});
+```
+
+`readStructure` checks the data and throws `StructureDataError` for anything
+missing or malformed; the result works everywhere a structure from `readCif`
+does.
+
 ## Built with
 
 - [three.js](https://threejs.org/) for rendering.

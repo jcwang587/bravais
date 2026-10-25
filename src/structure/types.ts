@@ -40,13 +40,13 @@ export interface SymmetryOperation {
   translation: Vec3;
 }
 
-/** What a CIF says about its space group; null for what it leaves out. */
+/** What a CIF or structure data says about its space group; null for what it leaves out. */
 export interface SpaceGroupInfo {
   /** Number in the International Tables, 1 to 230. */
   number: number | null;
-  /** Hermann-Mauguin symbol as written in the file. */
+  /** Hermann-Mauguin symbol as written in the source. */
   symbol: string | null;
-  /** Hall symbol as written in the file. */
+  /** Hall symbol as written in the source. */
   hallSymbol: string | null;
 }
 
@@ -55,6 +55,18 @@ export interface Structure {
   sites: Site[];
   /** Operations that generate the full cell from `sites`; the identity alone once expanded. */
   operations: SymmetryOperation[];
+  spaceGroup: SpaceGroupInfo;
+}
+
+/**
+ * A structure as its source lists it, before its symmetry is settled: the
+ * operations are null when the source gives none, and `spaceGroup` then
+ * decides them.
+ */
+export interface StructureListing {
+  lattice: Lattice;
+  sites: Site[];
+  operations: SymmetryOperation[] | null;
   spaceGroup: SpaceGroupInfo;
 }
 

@@ -159,10 +159,10 @@ export interface OperationSetting {
 }
 
 /**
- * Every setting the space group a CIF names admits, spglib's standard one
- * first: one for most symbols, several for a short symbol such as `P 21/c`
- * or a rhombohedral symbol without `:H` or `:R`. A bare number gives the
- * standard setting alone.
+ * Every setting the named space group admits, spglib's standard one first:
+ * one for most symbols, several for a short symbol such as `P 21/c` or a
+ * rhombohedral symbol without `:H` or `:R`. A bare number gives the standard
+ * setting alone.
  */
 export async function operationSettings(
   info: SpaceGroupInfo,
@@ -186,7 +186,7 @@ export async function operationSettings(
     }));
   }
   if (info.number === null) {
-    throw new SpaceGroupLookupError("The CIF names no space group.");
+    throw new SpaceGroupLookupError("No space group is named.");
   }
   return [
     {

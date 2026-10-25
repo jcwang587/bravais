@@ -1,28 +1,35 @@
-import { CifStructureError } from "../cif/errors.js";
-import type { ParsedCifStructure } from "../cif/structure.js";
 import { listingClosure } from "../structure/closure.js";
+import type { StructureError } from "../structure/errors.js";
 import {
   IDENTITY_OPERATION,
   type LatticeParameters,
   type Site,
+  type StructureListing,
   type SymmetryOperation,
 } from "../structure/types.js";
 import { operationSettings } from "./moyo.js";
+
+/** The error a reader reports with, such as `CifStructureError`. */
+export type StructureErrorClass = new (message: string) => StructureError;
 
 /** Lengths within this fraction, and angles within this many degrees, are equal. */
 const LENGTH_TOLERANCE = 1e-3;
 const ANGLE_TOLERANCE = 0.01;
 
-function misfitError(): CifStructureError {
-  return new CifStructureError(
-    "The symmetry does not fit the listed atoms: they are already expanded, yet the operations generate positions the file does not list.",
+function misfitError(ErrorClass: StructureErrorClass): StructureError {
+  return new ErrorClass(
+    "The symmetry does not fit the listed atoms: they are already expanded, yet the operations generate positions that are not listed.",
   );
 }
 
-function assertFits(sites: Site[], operations: SymmetryOperation[]): void {
+function assertFits(
+  sites: Site[],
+  operations: SymmetryOperation[],
+  ErrorClass: StructureErrorClass,
+): void {
   const closure = listingClosure(sites, operations);
   if (closure.preExpanded && !closure.closed) {
-    throw misfitError();
+    throw misfitError(ErrorClass);
   }
 }
 
@@ -60,18 +67,20 @@ function axesOfCell({
 }
 
 /**
- * The operations a parsed CIF's atoms are expanded with: the file's own
- * loop, checked to fit the atoms, or else the setting of its space group
- * that fits them. A symbol admitting several settings, such as a
- * rhombohedral group with no `:H` or `:R`, is settled by the atoms when the
- * list is already expanded, since only the right setting maps it onto
- * itself, and otherwise by the cell shape, then by the standard setting.
+ * The operations a listing's atoms are expanded with: its own operations,
+ * checked to fit the atoms, or else the setting of its space group that fits
+ * them. A symbol admitting several settings, such as a rhombohedral group
+ * with no `:H` or `:R`, is settled by the atoms when the list is already
+ * expanded, since only the right setting maps it onto itself, and otherwise
+ * by the cell shape, then by the standard setting. Operations that do not
+ * fit are reported as `ErrorClass`.
  */
 export async function resolveOperations(
-  parsed: ParsedCifStructure,
+  parsed: StructureListing,
+  ErrorClass: StructureErrorClass,
 ): Promise<SymmetryOperation[]> {
   if (parsed.operations) {
-    assertFits(parsed.sites, parsed.operations);
+    assertFits(parsed.sites, parsed.operations, ErrorClass);
     return parsed.operations;
   }
   const { spaceGroup } = parsed;
@@ -85,7 +94,7 @@ export async function resolveOperations(
   const settings = await operationSettings(spaceGroup);
   if (settings.length === 1) {
     const [only] = settings;
-    assertFits(parsed.sites, only!.operations);
+    assertFits(parsed.sites, only!.operations, ErrorClass);
     return only!.operations;
   }
   const closures = settings.map((setting) =>
@@ -98,7 +107,7 @@ export async function resolveOperations(
     return fitting.operations;
   }
   if (closures.some((closure) => closure.preExpanded)) {
-    throw misfitError();
+    throw misfitError(ErrorClass);
   }
   const axes = axesOfCell(parsed.lattice);
   const byCell =

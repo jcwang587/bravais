@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 - 2026-10-25
+
+- `readStructure(data)` reads a crystal structure given as plain data rather
+  than a CIF: the lattice as parameters or vectors, the sites with their
+  species, and the symmetry as operations (objects or strings such as
+  `"-x, y+1/2, -z"`) or as space-group names. Structures read elsewhere, such
+  as by another CIF reader, are then expanded, drawn and analysed like those
+  from `readCif`, with the same checks: the operations must include the
+  identity and fit the atoms. The data survives JSON and `structuredClone`,
+  so it can cross workers, processes and IPC.
+- `StructureError` is the base class of `CifStructureError` and of the new
+  `StructureDataError`, which reports data `readStructure` cannot read.
+- `readCif` reads every file as before.
+
 ## 0.2.1 - 2026-10-23
 
 - `parseSymmetryOperator` is renamed `parseSymmetryOperation`, after the

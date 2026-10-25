@@ -1,3 +1,5 @@
+import { StructureError } from "../structure/errors.js";
+
 /** The text is not CIF the tokenizer and parser accept. */
 export class CifSyntaxError extends Error {
   /** 1-based line of the problem. */
@@ -11,7 +13,7 @@ export class CifSyntaxError extends Error {
 }
 
 /** The CIF parses but does not describe a structure this package can use. */
-export class CifStructureError extends Error {
+export class CifStructureError extends StructureError {
   constructor(message: string) {
     super(message);
     this.name = "CifStructureError";

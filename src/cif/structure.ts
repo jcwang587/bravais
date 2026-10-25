@@ -1,13 +1,11 @@
 import { elementFromCifSymbol } from "../structure/elements.js";
-import { PositionIndex, wrap } from "../structure/fractional.js";
 import { latticeFromParameters } from "../structure/lattice.js";
+import { assembleSites, type SiteRow } from "../structure/sites.js";
 import type {
-  Lattice,
   Site,
   SpaceGroupInfo,
-  Species,
+  StructureListing,
   SymmetryOperation,
-  Vec3,
 } from "../structure/types.js";
 import {
   isCifPlaceholder,
@@ -17,9 +15,6 @@ import {
 } from "./parser.js";
 import { CifStructureError } from "./errors.js";
 import { parseSymmetryOperation } from "./symmetry-operations.js";
-
-/** Rows this close in fractional coordinates describe one site. */
-const SITE_MERGE_TOLERANCE = 1e-4;
 
 const OPERATION_TAGS = [
   "_space_group_symop_operation_xyz",
@@ -36,13 +31,11 @@ const HERMANN_MAUGUIN_TAGS = [
 ];
 const HALL_TAGS = ["_space_group_name_hall", "_symmetry_space_group_name_hall"];
 
-export interface ParsedCifStructure {
-  lattice: Lattice;
-  sites: Site[];
-  /** Null when the file lists no operations; see `spaceGroup` then. */
-  operations: SymmetryOperation[] | null;
-  spaceGroup: SpaceGroupInfo;
-}
+/**
+ * A data block's lattice, merged sites, operations (null when the file lists
+ * none; see `spaceGroup` then) and space-group tags.
+ */
+export type ParsedCifStructure = StructureListing;
 
 function requireNumber(block: CifBlock, tag: string): number {
   const value = parseCifNumber(block.get(tag));
@@ -52,43 +45,6 @@ function requireNumber(block: CifBlock, tag: string): number {
     );
   }
   return value;
-}
-
-function mergeSpecies(
-  species: Species[],
-  element: string,
-  occupancy: number,
-): void {
-  const existing = species.find((entry) => entry.element === element);
-  if (existing) {
-    existing.occupancy += occupancy;
-  } else {
-    species.push({ element, occupancy });
-  }
-  species.sort((left, right) => right.occupancy - left.occupancy);
-}
-
-/** Totals this far above 1 are more than rounding. */
-const OVERFULL_TOLERANCE = 1e-6;
-
-/**
- * A site holds at most one atom. Refined occupancies sometimes add up to a
- * little more, and some files list far more; either way the species are
- * scaled down to a full site, the rule pymatgen applies within its
- * tolerance, so the drawn atom makes sense.
- */
-function scaleOverfullSites(sites: Site[]): void {
-  for (const site of sites) {
-    const total = site.species.reduce(
-      (sum, species) => sum + species.occupancy,
-      0,
-    );
-    if (total > 1 + OVERFULL_TOLERANCE) {
-      for (const species of site.species) {
-        species.occupancy /= total;
-      }
-    }
-  }
 }
 
 function readSites(block: CifBlock): Site[] {
@@ -104,8 +60,7 @@ function readSites(block: CifBlock): Site[] {
   const labels = loopColumn(loop, "_atom_site_label");
   const typeSymbols = loopColumn(loop, "_atom_site_type_symbol");
   const occupancies = loopColumn(loop, "_atom_site_occupancy");
-  const sites: Site[] = [];
-  const positions = new PositionIndex(SITE_MERGE_TOLERANCE);
+  const rows: SiteRow[] = [];
 
   for (let row = 0; row < loop.rows.length; row += 1) {
     const x = parseCifNumber(xs[row]);
@@ -126,23 +81,15 @@ function readSites(block: CifBlock): Site[] {
       );
     }
     const occupancy = parseCifNumber(occupancies?.[row]) ?? 1;
-    const fractional: Vec3 = [wrap(x), wrap(y), wrap(z)];
-    // The first site listed at this position, if any.
-    const [shared] = positions.near(fractional);
-    if (shared !== undefined) {
-      mergeSpecies(sites[shared]!.species, element, occupancy);
-    } else {
-      positions.add(fractional);
-      sites.push({ label, species: [{ element, occupancy }], fractional });
-    }
+    rows.push({ label, element, occupancy, fractional: [x, y, z] });
   }
 
+  const sites = assembleSites(rows);
   if (sites.length === 0) {
     throw new CifStructureError(
       `${block.name || "The CIF"} has no atom sites with coordinates.`,
     );
   }
-  scaleOverfullSites(sites);
   return sites;
 }
 

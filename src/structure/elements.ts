@@ -125,7 +125,8 @@ const ELEMENTS = new Set(ELEMENT_SYMBOLS);
 /** Deuterium keeps its own symbol for display and counts as hydrogen. */
 const DEUTERIUM = "D";
 
-function isElementSymbol(symbol: string): boolean {
+/** True for an element symbol as written, such as "Fe", or "D" for deuterium. */
+export function isElementSymbol(symbol: string): boolean {
   return ELEMENTS.has(symbol) || symbol === DEUTERIUM;
 }
 

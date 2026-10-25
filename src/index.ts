@@ -5,6 +5,12 @@ import { resolveOperations } from "./symmetry/resolve.js";
 import type { Structure } from "./structure/types.js";
 
 export { CifStructureError, CifSyntaxError } from "./cif/errors.js";
+export { StructureDataError, StructureError } from "./structure/errors.js";
+export {
+  readStructure,
+  type SiteData,
+  type StructureData,
+} from "./structure/from-data.js";
 export {
   parseCif,
   type CifBlock,
@@ -86,7 +92,7 @@ export async function readCif(text: string): Promise<Structure> {
   return {
     lattice: parsed.lattice,
     sites: parsed.sites,
-    operations: await resolveOperations(parsed),
+    operations: await resolveOperations(parsed, CifStructureError),
     spaceGroup: parsed.spaceGroup,
   };
 }

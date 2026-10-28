@@ -217,11 +217,12 @@ export function createViewer(
     controls.rotateSpeed = ROTATE_SPEED * (width / REFERENCE_WIDTH_PX);
   }
 
-  function refit(quaternion: Quaternion): void {
+  /** The fit of the model at the canvas size: what a view's scale is relative to. */
+  function refit(): void {
     if (!model) {
       return;
     }
-    fitted = fitZoom(model.bounds, quaternion, width, height);
+    fitted = fitZoom(model.bounds, model.cell, width, height);
     controls.minZoom = fitted * MIN_SCALE;
     controls.maxZoom = fitted * MAX_SCALE;
   }
@@ -295,7 +296,7 @@ export function createViewer(
   function resize(): void {
     const scale = fitted > 0 ? camera.zoom / fitted : 1;
     measure();
-    refit(camera.quaternion);
+    refit();
     camera.zoom = fitted * scale;
     camera.updateProjectionMatrix();
     render();
@@ -335,7 +336,7 @@ export function createViewer(
     }
     applyViewState(camera, view, distance, model.span);
     controls.target.set(...view.target);
-    refit(camera.quaternion);
+    refit();
     camera.zoom = fitted * view.scale;
     camera.updateProjectionMatrix();
     controls.update();

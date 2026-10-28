@@ -134,14 +134,19 @@ function projectedSize(
   return { width: Math.max(1, maxX - minX), height: Math.max(1, maxY - minY) };
 }
 
-/** Orthographic zoom (pixels per ångström) that fits `bounds` in the viewport. */
+/**
+ * Orthographic zoom (pixels per ångström) that fits `bounds` in the viewport
+ * in the standard view of `cell`. A view's `scale` is relative to this zoom,
+ * which depends on the structure and the viewport but not on the orientation
+ * the view was saved in.
+ */
 export function fitZoom(
   bounds: Box3,
-  quaternion: Quaternion,
+  cell: Mat3,
   width: number,
   height: number,
 ): number {
-  const projected = projectedSize(bounds, quaternion);
+  const projected = projectedSize(bounds, standardQuaternion(cell));
   const availableLength = Math.sqrt(Math.max(1, width) * Math.max(1, height));
   const projectedLength = Math.sqrt(projected.width * projected.height);
   return Math.max(

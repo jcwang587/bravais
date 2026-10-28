@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1 - 2026-10-28
+
+- A view keeps its zoom when it is restored after the structure was rotated.
+  A view's `scale` is now relative to the fit of the standard orientation, in
+  the viewer and in thumbnails alike, instead of to the fit of whichever
+  orientation the viewer last applied a view in. Before, replacing the layers
+  or resizing the viewer after a rotation changed the zoom, and the thumbnail
+  of a rotated view was drawn at another zoom than the viewer's.
+
 ## 0.3.0 - 2026-10-25
 
 - `readStructure(data)` reads a crystal structure given as plain data rather

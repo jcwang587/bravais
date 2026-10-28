@@ -1,5 +1,3 @@
-import { Quaternion } from "three";
-
 import {
   applyPixelFrustum,
   applyViewState,
@@ -86,12 +84,7 @@ export function createThumbnailRenderer(): ThumbnailRenderer {
       const pose = view ?? standardView(model.cell);
       applyViewState(camera, pose, distance, model.span);
       camera.zoom =
-        fitZoom(
-          model.bounds,
-          new Quaternion(...pose.quaternion),
-          width,
-          height,
-        ) * pose.scale;
+        fitZoom(model.bounds, model.cell, width, height) * pose.scale;
       camera.updateProjectionMatrix();
       updateHeadlight();
 

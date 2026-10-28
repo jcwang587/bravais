@@ -9,6 +9,9 @@ export interface ViewState {
   quaternion: [number, number, number, number];
   /** The point looked at, in the centred frame: the first layer's cell centre is the origin. */
   target: Vec3;
-  /** Zoom relative to the zoom that fits every layer in the viewport. */
+  /**
+   * Zoom relative to the zoom that fits every layer in the viewport in the
+   * standard orientation, so a view keeps its zoom whatever its orientation.
+   */
   scale: number;
 }

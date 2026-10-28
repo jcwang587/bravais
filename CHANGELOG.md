@@ -2,12 +2,13 @@
 
 ## 0.3.1 - 2026-10-28
 
-- A view keeps its zoom when it is restored after the structure was rotated.
-  A view's `scale` is now relative to the fit of the standard orientation, in
-  the viewer and in thumbnails alike, instead of to the fit of whichever
-  orientation the viewer last applied a view in. Before, replacing the layers
-  or resizing the viewer after a rotation changed the zoom, and the thumbnail
-  of a rotated view was drawn at another zoom than the viewer's.
+- A view's `scale` is now relative to the fit of the standard orientation, so
+  a view state names one zoom wherever it is drawn. Before, the viewer
+  measured the fit in the orientation it had last applied a view in, and the
+  thumbnail renderer in the view's own orientation: a view saved after a
+  rotation was restored at another zoom, resizing the viewer after a rotation
+  changed the zoom, and the two renderers drew the same view at different
+  zooms.
 
 ## 0.3.0 - 2026-10-25
 

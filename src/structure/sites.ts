@@ -32,8 +32,7 @@ function mergeSpecies(
 /**
  * A site holds at most one atom. Refined occupancies sometimes add up to a
  * little more, and some files list far more; either way the species are
- * scaled down to a full site, the rule pymatgen applies within its
- * tolerance, so the drawn atom makes sense.
+ * scaled down to a full site, so the drawn atom makes sense.
  */
 function scaleOverfullSites(sites: Site[]): void {
   for (const site of sites) {

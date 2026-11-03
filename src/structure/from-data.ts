@@ -33,8 +33,8 @@ export interface SiteData {
 export interface StructureData {
   /**
    * Cell lengths in ångström and angles in degrees, set with c along z and a
-   * in the xz plane as in pymatgen, or the three cell vectors as rows in
-   * Cartesian ångström, used as given. Vectors win when both are given.
+   * in the xz plane, or the three cell vectors as rows in Cartesian
+   * ångström, used as given. Vectors win when both are given.
    */
   lattice: LatticeParameters | { vectors: Mat3 };
   /**

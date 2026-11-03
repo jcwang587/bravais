@@ -8,7 +8,7 @@ function clamp(value: number, min: number, max: number): number {
 
 /**
  * A lattice from cell lengths in ångström and angles in degrees. The c axis
- * points along z and a lies in the xz plane, as in pymatgen.
+ * points along z and a lies in the xz plane.
  */
 export function latticeFromParameters(parameters: LatticeParameters): Lattice {
   const { a, b, c } = parameters;

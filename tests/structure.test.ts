@@ -291,7 +291,7 @@ describe("scene", () => {
     expect(scene.elements).toEqual(["Ca", "S", "O", "H"]);
   });
 
-  it("builds a cubic lattice along the pymatgen convention", () => {
+  it("builds a lattice with c along z and a in the xz plane", () => {
     const lattice = latticeFromParameters({
       a: 2,
       b: 3,

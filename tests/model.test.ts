@@ -25,7 +25,7 @@ describe("scene model", () => {
       await readCif(fixture("CoO-9008618.cif")),
     );
     const raw = buildScene(structure);
-    // The same sites in a larger cell, as a refinement might return them.
+    // The same sites in a larger cell.
     const refined = buildScene({
       ...structure,
       lattice: latticeFromParameters({

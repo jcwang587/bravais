@@ -19,8 +19,8 @@ import { ensureMoyo, fromMoyoOperation } from "./moyo.js";
 import { moyo } from "./moyo-loader.js";
 
 /**
- * Distance tolerance of the symmetry search, in ångström: pymatgen's
- * default, loose enough for coordinates rounded to four decimals.
+ * Distance tolerance of the symmetry search, in ångström: loose enough for
+ * coordinates rounded to four decimals.
  */
 const DEFAULT_SYMPREC = 0.01;
 
@@ -67,9 +67,9 @@ export interface SymmetryDataset {
 
 /**
  * moyo tells sites apart by an integer label. Every distinct species list,
- * occupancies included, gets a label of its own, the way pymatgen types
- * sites, so a half-occupied sodium site never matches a full one and the
- * standard cell maps back to exactly the species it was given.
+ * occupancies included, gets a label of its own, so a half-occupied sodium
+ * site never matches a full one and the standard cell maps back to exactly
+ * the species it was given.
  */
 function labelSpecies(sites: Site[]): {
   numbers: number[];

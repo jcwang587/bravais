@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 - 2026-11-14
+
+- The package is built with current build tools, and the comments in its
+  type declarations state the lattice, site and symmetry conventions
+  directly. Nothing changes in how structures are read, drawn or analysed.
+
 ## 0.3.1 - 2026-10-28
 
 - A view's `scale` is now relative to the fit of the standard orientation, so

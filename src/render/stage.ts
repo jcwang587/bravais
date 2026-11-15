@@ -24,13 +24,15 @@ export interface Stage {
   updateHeadlight(): void;
 }
 
-export function createStage(options: { stencil?: boolean } = {}): Stage {
+export function createStage(
+  options: { stencil?: boolean; background?: string } = {},
+): Stage {
   const renderer = new WebGLRenderer({
     antialias: true,
     alpha: true,
     stencil: options.stencil ?? false,
   });
-  renderer.setClearColor(BACKGROUND_COLOR, 1);
+  renderer.setClearColor(options.background ?? BACKGROUND_COLOR, 1);
   renderer.toneMapping = ACESFilmicToneMapping;
   const scene = new Scene();
   const camera = new OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);

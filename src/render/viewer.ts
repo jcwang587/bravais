@@ -27,6 +27,11 @@ export interface ViewerOptions {
   legend?: boolean;
   /** Show the a, b, c axes in the corner. Default true. */
   gizmo?: boolean;
+  /**
+   * The colour behind the structure, in any form three.js reads, such as
+   * "#ffffff". Atoms further back fade into it. Default "#fafafa".
+   */
+  background?: string;
 }
 
 export interface Viewer {
@@ -83,6 +88,7 @@ function createDepthFog(
   model: SceneModel,
   distance: number,
   quaternion: Quaternion,
+  background: string,
 ): Fog {
   // The fog spans the structure's depth range along the standard view: it
   // starts a little in front of the farthest point and reaches full strength
@@ -109,7 +115,7 @@ function createDepthFog(
   const startOffset = firstStart + (lastStart - firstStart) * FOG_START;
   const near = distance + startOffset;
   const far = near + (distance + backOffset - near) / FOG_AMOUNT;
-  return new Fog(BACKGROUND_COLOR, near, far);
+  return new Fog(background, near, far);
 }
 
 /**
@@ -127,9 +133,11 @@ export function createViewer(
   ensureViewerStyles(root);
   container.classList.add("bravais-viewer");
 
+  const background = options.background ?? BACKGROUND_COLOR;
   // The stencil buffer is for the gizmo: its letters change colour over the axes.
   const { renderer, scene, camera, updateHeadlight } = createStage({
     stencil: true,
+    background,
   });
   renderer.setPixelRatio(root.defaultView?.devicePixelRatio ?? 1);
   renderer.domElement.className = "bravais-canvas";
@@ -313,7 +321,7 @@ export function createViewer(
   const warmup = createShaderWarmup();
   scene.add(warmup.group);
   // Structures are drawn in depth fog, which is part of their shaders.
-  scene.fog = new Fog(BACKGROUND_COLOR, 1, 2);
+  scene.fog = new Fog(background, 1, 2);
   const warming = Promise.all([
     renderer.compileAsync(scene, camera),
     gizmo && renderer.compileAsync(gizmo.scene, gizmo.camera),
@@ -356,6 +364,7 @@ export function createViewer(
         model,
         distance,
         standardQuaternion(model.cell),
+        background,
       );
       legend?.setElements(model.elements);
       gizmo?.setCell(model.cell);

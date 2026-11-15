@@ -63,6 +63,7 @@ export {
 } from "./render/viewer.js";
 export {
   createThumbnailRenderer,
+  type ThumbnailOptions,
   type ThumbnailRenderer,
 } from "./render/thumbnails.js";
 export type { ViewState } from "./render/view-state.js";

@@ -10,11 +10,14 @@ import { fixture } from "./helpers.js";
 const drawn: Vector3[] = [];
 /** The camera zoom of each render. */
 const zooms: number[] = [];
+/** The options each stage was created with. */
+const stageOptions: { background?: string }[] = [];
 let target = new Vector3();
 
 // A stage without WebGL: rendering records where the target projects.
 vi.mock("../src/render/stage.js", () => ({
-  createStage: () => {
+  createStage: (options: { background?: string } = {}) => {
+    stageOptions.push(options);
     const camera = new OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
     const domElement = { width: 0, height: 0 };
     return {
@@ -82,4 +85,11 @@ it("draws a view at the zoom its scale says, whatever its orientation", async ()
   renderer.render("rotated", [{ scene }], rotated, canvas as never);
   expect(zooms).toHaveLength(2);
   expect(zooms[1]).toBeCloseTo(zooms[0]!, 9);
+});
+
+it("draws thumbnails on the background it is given", async () => {
+  const { createThumbnailRenderer } =
+    await import("../src/render/thumbnails.js");
+  createThumbnailRenderer({ background: "#ffffff" }).dispose();
+  expect(stageOptions.at(-1)?.background).toBe("#ffffff");
 });

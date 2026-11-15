@@ -31,6 +31,14 @@ export interface ThumbnailRenderer {
   dispose(): void;
 }
 
+export interface ThumbnailOptions {
+  /**
+   * The colour behind each structure, in any form three.js reads, such as
+   * "#ffffff". Default "#fafafa".
+   */
+  background?: string;
+}
+
 interface CachedModel {
   layers: SceneLayer[];
   model: SceneModel;
@@ -40,8 +48,12 @@ interface CachedModel {
  * Draw small previews into ordinary canvases from one shared WebGL context,
  * so a list of structures does not need a context for each.
  */
-export function createThumbnailRenderer(): ThumbnailRenderer {
-  const { renderer, scene, camera, updateHeadlight } = createStage();
+export function createThumbnailRenderer(
+  options: ThumbnailOptions = {},
+): ThumbnailRenderer {
+  const { renderer, scene, camera, updateHeadlight } = createStage({
+    background: options.background,
+  });
   const cache = new Map<string, CachedModel>();
 
   // Compile every shader now, all at once, so the driver can compile them in

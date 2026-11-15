@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 - 2026-11-15
+
+- `createViewer` and `createThumbnailRenderer` take a `background` option: the
+  colour behind the structure, which atoms further back also fade into in the
+  viewer. The default stays `#fafafa`.
+
 ## 0.3.2 - 2026-11-14
 
 - The package is built with current build tools, and the comments in its
